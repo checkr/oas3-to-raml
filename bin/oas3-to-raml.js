@@ -18,7 +18,7 @@ const flow = [
     {desc: "Convert from OpenAPI 2.0 to RAML", action: converters.convertFromOas2ToRaml, suffix: "-base", ext: "raml"},
     {desc: "Fix 'nullable' types", action: fixers.fixNullables, suffix: "-nullable-fix", ext: "raml"},
     {desc: "Fix extended types", action: fixers.fixExtendedTypes, suffix: "-extended-types-fix", ext: "raml"},
-    {desc: "Fix numeric examples", action: fixers.fixExtendedTypes, suffix: "-examples-fix", ext: "raml"}
+    {desc: "Fix numeric examples", action: fixers.fixExamples, suffix: "-examples-fix", ext: "raml"}
 ];
 
 /**
