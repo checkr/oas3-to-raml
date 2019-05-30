@@ -1,0 +1,15 @@
+{
+  "name": "oas3-to-raml",
+  "version": "1.0.0",
+  "description": "OpenAPI 3.0 to RAML converter",
+  "private": true,
+  "bin": {
+    "oas3-to-raml": "./bin/oas3-to-raml"
+  },
+  "dependencies": {
+    "api-spec-converter": "^2.8.3",
+    "commander": "^2.20.0",
+    "js-yaml": "^3.13.1",
+    "oas-raml-converter": "^1.1.43"
+  }
+}
