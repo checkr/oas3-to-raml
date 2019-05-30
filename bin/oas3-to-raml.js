@@ -1,34 +1,32 @@
 #!/usr/bin/env node
 
-const program = require("commander");
 const fs = require("fs");
+const program = require("commander");
 const version = require("../package.json").version;
 
-// Import converters and post-conversion helpers/fixers
-const converters = require("../lib/converters");
-const fixRaml = require("../lib/raml-fixers");
+// Import converters
+const { convertFromOas3ToOas2, convertFromOas2ToRaml } = require("../lib/converters");
+const { fixNullables, fixExtendedTypes, fixExamples} = require("../lib/raml-fixers");
 
-// Conversion flow, each step contains:
+// Conversion steps, each step contains:
 // * desc: Descriptive summary of step (e.g. "converting from X to Y")
-// * action: function to call
-const flow = [
-    {desc: "Convert from OpenAPI 3.0 to 2.0", action: converters.convertFromOas3ToOas2},
-    {desc: "Convert from OpenAPI 2.0 to RAML", action: converters.convertFromOas2ToRaml},
-    {desc: "Fix-up RAML", action: fixRaml}
+// * action: function to call (input: string spec, output: string spec)
+const steps = [
+    { desc: "Convert from OpenAPI 3.0 to 2.0", action: convertFromOas3ToOas2 },
+    { desc: "Convert from OpenAPI 2.0 to RAML", action: convertFromOas2ToRaml },
+    { desc: "Fix 'nullable' types", action: fixNullables },
+    { desc: "Fix extended types", action: fixExtendedTypes },
+    { desc: "Fix numeric examples", action: fixExamples }
 ];
 
 /**
- * Convert input specification using flow steps defined in global var "flow"
- * 
- * @param {*} inputFile 
- * @param {*} workDir
- * @returns Output filename created on last conversion
+ * Convert input specification using specified steps
  */
-async function convert(input) {
-    var output;
+async function convert(input, steps) {
+    var output = "";
 
-    for (let i = 0; i < flow.length; i++) {
-        const step = flow[i];
+    for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
 
         console.log(step.desc);
         try {
@@ -60,15 +58,12 @@ function main(args) {
         process.exit(1);
     }
 
-    convert(input).then(output => {
-        try {
-            fs.writeFileSync(args.outputFile, output);
-        }
-        catch (err) {
+    convert(input, steps)
+        .then(output => fs.writeFileSync(args.outputFile, output))
+        .catch(err => {
             console.log("Unable to save RAML spec to '" + args.outputFile + "': " + err.message);
             process.exit(1);
-        }
-    });
+        });
 }
 
 program

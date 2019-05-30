@@ -20,3 +20,4 @@ This utility depends on the following projects:
 Convert from OpenAPI 3.0 to OpenAPI 2.0
 * [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter):
 Convert from OpenAPI 2.0 to RAML
+* [lodash](https://github.com/lodash/lodash): Java object operations

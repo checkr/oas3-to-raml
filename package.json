@@ -10,6 +10,7 @@
     "api-spec-converter": "^2.8.3",
     "commander": "^2.20.0",
     "js-yaml": "^3.13.1",
+    "lodash": "^4.17.11",
     "oas-raml-converter": "^1.1.43"
   }
 }
