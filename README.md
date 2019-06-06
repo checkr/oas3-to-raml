@@ -7,7 +7,12 @@ Command-line utility to convert from OpenAPI 3.0 to RAML specification.
 1. Install Node and NPM
 2. Install dependencies: `npm install`
 3. Convert specification:
-  `bin/oas3-to-raml -i [input-spec] -o [output-spec]`
+
+  `bin/oas3-to-raml.js -i [input-spec] -o [output-spec]`
+
+   -- _or_ --
+
+  `npx oas3-to-raml -i [input-spec] -o [output-spec]`
 
 Where:
 * _input-spec_: Full path to input specification in OpenAPI 3.0 format
