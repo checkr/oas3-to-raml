@@ -1,24 +1,24 @@
 {
   "name": "oas3-to-raml",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OpenAPI 3.0 to RAML converter",
   "bin": {
     "oas3-to-raml": "./bin/oas3-to-raml.js"
   },
   "dependencies": {
-    "api-spec-converter": "^2.8.3",
+    "api-spec-converter": "^2.10.1",
     "commander": "^2.20.0",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "oas-raml-converter": "^1.1.43"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.2.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
   },
   "license": "MIT",
   "repository": {
