@@ -1,0 +1,6509 @@
+#%RAML 1.0
+title: TestOauth4ChkrAPI
+description: >
+  Checkr provides modern and compliant background checks for global enterprises
+  and startups.
+version: v1
+(oas-info):
+  contact:
+    url: 'https://checkr.com'
+    email: clients@checkr.com
+annotationTypes:
+  oas-info:
+    properties:
+      termsOfService?: string
+      contact?:
+        properties:
+          name?: string
+          url?: string
+          email?: string
+      license?:
+        properties:
+          name?: string
+          url?: string
+    allowedTargets: API
+  oas-tags-definition:
+    allowedTargets: API
+    type: array
+    items:
+      properties:
+        name: string
+        description?: string
+        externalDocs?:
+          properties:
+            url: string
+            description?: string
+  components: any
+  tagGroups: any
+  amf-settings: any
+  oas-format:
+    type: string
+    allowedTargets: TypeDeclaration
+  oas-readOnly:
+    type: boolean
+    allowedTargets: TypeDeclaration
+  oas-summary:
+    type: string
+    allowedTargets: Method
+  oas-tags:
+    type: 'string[]'
+    allowedTargets: Method
+  code-samples: any
+  oas-body-name:
+    type: string
+    allowedTargets: TypeDeclaration
+  oas-collectionFormat:
+    type: string
+  example: nil
+(oas-tags-definition):
+  - name: Account
+    description: >
+      The Account resource includes account information and settings. Account
+      information can be
+
+      updated from the Dashboard. Some Account settings, like
+      `available_screenings`, can be updated
+
+      only by Checkr. Contact our Customer Success team for more information.
+  - name: Candidates
+    description: >
+      Candidates represent people who have applied for positions within your
+      company,
+
+      and have agreed to a background check. Use the Candidate object
+
+      to collect all Personally Identifiable Information (PII) for a candidate,
+
+      and all relevant Checkr information, including any generated Reports, or
+      attached Geos.
+  - name: Schools
+    description: >
+      The School resource includes all relevant educational information for the
+      specified Candidate.
+
+      School resources are tied to the specified candidate, and do not transfer
+      to other alumna
+
+      within the system.
+  - name: Employers
+  - name: Invitations
+    description: >
+      Represents a background check invitation. The candidate will receive an
+      email to submit
+
+      their information.
+
+
+      **Note**: By default, the date of expiration is set to 7 days after
+      creation.
+
+      All invitations expire at 11:59:59pm PDT.
+
+      This enables candidates to have a full last day to complete their
+      invitation.
+  - name: Reports
+    description: >
+      Reports are the core of the Checkr process, and contain all information
+      relevant to a
+
+      candidate’s requested background check. Reports include the status of the
+      background check
+
+      process, the list of searches included in the check, and the Package
+      requested.
+
+      Depending on the Package selected, a report may include any combination of
+
+      [Checkr Screenings](#tag/SSN-Trace) listed below.
+
+
+      For more information on the searches listed, see
+      [Screenings](#tag/SSN-Trace) (below),
+
+      or [Screening
+      Types](https://help.checkr.com/hc/en-us/sections/203637147-Screening-Types)
+
+      in the Checkr Help Center.
+
+
+      When a Report is sent to a candidate, it is generated as a PDF Report
+      resource.
+  - name: Packages
+    description: >
+      Packages are a list of screenings to be run for a report.
+
+      Work with your Checkr Customer Success representative to define Packages
+      that will best serve
+
+      your business needs.
+  - name: Documents
+    description: >
+      Represents a Document, either related to a Report (such as a PDF Report)
+      or related to a Candidate
+
+      (such as a Driver License image, or a consent form). Report Document IDs
+      can be retrieved from the
+
+      [Retrieve an existing Report](#operation/getReport) endpoint. Candidate
+      Document IDs can be
+
+      retrieved using the [List a Candidate's
+      Documents](#operation/getCandidateDocuments) endpoint.
+
+
+      Use `GET /v1/reports/{id}?include=documents` to return a Report resource
+      that includes an array of `document` objects.
+
+
+      Report Documents are of the following types: `drug_screen_donor_pass`,
+
+      `health_screening_occupational_health_document`,
+
+      `health_screening_result_certificate`, `pdf_credit_report`",
+
+      `pdf_health_report`, `pdf_individualized_assessment`, `pdf_report`,
+
+      `pdf_report_encrypted`, `pdf_self_disclosure`, `pdf_wisconsin_doj`, and
+
+      `screening_pass`.
+  - name: Verifications
+    description: >
+      Represents a link by which candidates may upload a document. If a
+      candidate must upload
+
+      documents to continue processing their report, a set of Verifications will
+      be available.
+
+      Checkr offers two verification types: `id` and `education`. ID
+      Verifications are used for
+
+      identity and license purposes, such as ID card or driver’s license.
+      Education Verifications
+
+      are used for documents related to Education Verification.
+  - name: Adverse Items
+    description: |
+      Adverse Items are items selected from a returned report that may be used
+      to initiate Adverse Action for a Candidate.
+  - name: Adverse Actions
+    description: >
+      Adverse Actions are initiated by Checkr customers if something is returned
+      on a Candidate’s
+
+      report that requires further investigation. When an Adverse Action is
+      initiated, the candidate
+
+      must be informed, and given time to address the issues raised.
+
+
+      National and local laws control the Adverse Action process and define the
+      sequence and timing
+
+      with which it must process. Please work with your legal council to ensure
+      that your process is
+
+      compliant.
+
+
+      For more information, see
+
+      [The Adverse Actions
+      Process](https://help.checkr.com/hc/en-us/articles/216873808)
+
+      in the Checkr Help Center.
+  - name: Subscriptions
+    description: |
+      Represents a background check subscription. A background report with
+      the Package specified will run at every interval.
+  - name: Geos
+    description: Represents a candidate geography.
+  - name: Programs
+    description: >
+      Represents a division of an Account. Programs are typically used to
+      identify clients,
+
+      cost centers, or departments. A Program may have many Geos and may have
+      many Packages.
+  - name: Report Tags
+    description: 'Report Tags are defined by customers, and may be used to search Reports.'
+  - name: Report Addresses
+    description: Represents candidate reported addresses on a Report.
+  - name: Report ETA
+    description: >
+      Report ETAs predict when County Criminal Searches will complete for each
+      background check report. This ETA provides a date for the estimated
+      completion of a specific report, helping both you and candidates plan
+      ahead.
+
+
+      While the predictions are highly accurate, they are not a guarantee.
+
+      Estimates provided by Report ETA are correct within one business day for
+
+      more than 9 out of 10 requested reports. Checkr still relies on
+
+      county-level search variability, which may contribute to unpredictable
+
+      timelines. For more information, please see [County Criminal Record
+      Search](https://help.checkr.com/hc/en-us/articles/360001686627)
+
+      in the Checkr Help Center.
+
+
+      Report ETA information will be available thirty minutes after report
+      creation. Report ETA will only be provided if at least one county criminal
+      records check is run for the report.
+  - name: SSN Trace
+    description: >
+      SSN Trace is typically the first screening run, and is used to verify that
+
+      the input SSN exists, determine where and when it was issued, and to
+      compile
+
+      a list of all known aliases associated with the SSN. This Trace is also
+      used to generate
+
+      a list of all known addresses recorded by credit agencies for the SSN for
+      the last 7 years.
+
+
+      An SSN Trace may be used to determine which additional jurisdictions
+      should be searched for
+
+      the candidate, based on the list of known addresses returned.
+
+
+      If the platform detects an issue with the SSN Trace run (data mismatch,
+      absence of data,
+
+      or inclusion of the SSN on the death master file), Checkr may issue an
+      exception and ask
+
+      the candidate to either re-enter their SSN or upload other supporting
+      documentation.
+
+
+      Checkr's product incorporates SSN field controls designed to not accept
+      SSNs with the following characteristics:
+
+        - SSNs without exactly 9 numeric characters
+        - SSNs that start with 666 (666-34-3768)
+        - SSNs that start with 9 (967-65-4325)
+        - SSNs that are a single digit (111-11-1111)
+        - SSNs that are sequential digits (123-45-6789)
+
+      For more information, please see
+
+      [SSN Trace](https://help.checkr.com/hc/en-us/articles/360001967227)
+
+      in the Checkr Help Center.
+  - name: Sex Offender Registry Search
+    description: >
+      Represents an instant multi-state Sex Offender Registry Search.
+
+
+      A nationwide search of all 50 states' and the District of Columbia’s sex
+      offender registries
+
+      for all levels of registered sex offenders. Search includes type(s) of
+      offense and
+
+      identifiers, such as Date of Birth (DOB).
+
+
+      For more information, please see
+
+      [Sex Offender Registry
+      Search](https://help.checkr.com/hc/en-us/articles/360001863428)
+
+      in the Checkr Help Center.
+  - name: Global Watchlist Search
+    description: >
+      The Global Watchlist Search searches known domestic and international
+      terrorist watchlists
+
+      as well as the records of the Office of Inspector General (OIG), Excluded
+      Parties List (EPL)
+
+      and additional domestic and international agency lists.
+
+
+      For more information, please see
+
+      [Global Watchlist
+      Search](https://help.checkr.com/hc/en-us/articles/360001951208)
+
+      in the Checkr Help Center.
+  - name: National Criminal Search
+    description: >
+      Checkr conducts a National Criminal Database Search as a routine part of
+      all criminal
+
+      background checks. The search queries 3,200 counties and over 900 million
+      records across
+
+      the United States, and provides a quick means to evaluate which courts or
+      jurisdictions should
+
+      be searched more thoroughly for any given candidate.
+
+
+      The National Criminal Database Search is used only as a "pointer search"
+      to determine which
+
+      courts or jurisdictions to search. Records returned from this database do
+      not appear
+
+      on the final report.
+
+
+      For more information, please see
+
+      [National Criminal Database
+      Search](https://help.checkr.com/hc/en-us/articles/360001686567)
+
+      in the Checkr Help Center.
+  - name: Federal Criminal Search
+    description: >
+      The Federal Criminal Database Search queries the US Federal Government’s
+      PACER
+
+      (Public Access to Court Electronic Records) criminal record system, which
+      is an online portal
+
+      used to obtain case information from the 94 Federal District Court
+      jurisdictions. This search
+
+      returns results for federal crimes, which are prosecuted under federal
+      criminal law in federal
+
+      courts. (National, State, and County Criminal Searches do not return
+      federal records.)
+
+
+      For more information, please see
+
+      [Federal Criminal
+      Search](https://help.checkr.com/hc/en-us/articles/360001882627)
+
+      in the Checkr Help Center.
+  - name: County Criminal Search
+    description: >
+      County Criminal records make up the majority of criminal records, and are
+      therefore one of
+
+      the most complete sources for both felony and misdemeanor records. These
+      records are
+
+      not reported to the federal database, and will therefore not be surfaced
+
+      in a Federal Criminal Database Search.
+
+
+      The County Criminal Search resource defines the results from a criminal
+      record search
+
+      in a specific county.
+
+
+      For more information, please see
+
+      [County Criminal
+      Search](https://help.checkr.com/hc/en-us/articles/360001686627)
+
+      in the Checkr Help Center.
+  - name: State Criminal Search
+    description: >
+      The State Criminal Search returns criminal records from a selected state’s
+      database,
+
+      the content of which varies by state. Some states include records reported
+      from all counties;
+
+      some include records only from a few. This search should be used in
+      conjunction with
+
+      a County Criminal Search, and not as a replacement for the more complete
+      records returned
+
+      from the County Search.
+
+
+      For more information, please see
+
+      [State Criminal
+      Search](https://help.checkr.com/hc/en-us/articles/360001668148)
+
+      in the Checkr Help Center.
+  - name: Motor Vehicle Report
+    description: >
+      Motor Vehicle Records originate from a state’s Department of Motor
+      Vehicles, and include
+
+      information related to a person’s driving history, including driver’s
+      license status and
+
+      restrictions, as well as violations and convictions. Use MVR reports to
+      evaluate a candidate’s
+
+      driving history and safety record.
+
+
+      Please note that some convictions, such as driving under the influence,
+      may appear only
+
+      on MVR reports, and not on criminal searches.
+
+
+      For more information, please see
+
+      [Motor Vehicle
+      Records](https://help.checkr.com/hc/en-us/articles/360001568167)
+
+      in the Checkr Help Center.
+  - name: Education Verification
+    description: >
+      Use an Education Verification to verify a candidate’s education history,
+      and highest degree
+
+      achieved.
+
+
+      For this screening, candidates are asked to supply their degree, major,
+      school, and the state
+
+      in which the school is located. Checkr then attempts to verify the
+      information. After three
+
+      failed attempts (itemized in the logs), Checkr generates an exception, and
+      asks the candidate
+
+      to upload supporting documentation. Once the document is uploaded, the
+      verification process
+
+      will begin again.
+
+
+      For more information, please see
+
+      [Education
+      Verification](https://help.checkr.com/hc/en-us/articles/360001863468)
+
+      in the Checkr Help Center.
+  - name: Employment Verification
+    description: >
+      Use an Employment Verification to verify a candidate’s employment history
+      for the last three
+
+      employers, or the last seven years.
+
+
+      For this screening, candidates are asked to supply their employment
+      history. Checkr then
+
+      attempts to verify the information. After three failed attempts (itemized
+      in the logs),
+
+      Checkr generates an exception, and asks the candidate to upload supporting
+      documentation.
+
+      Once the document is uploaded, the verification process will begin again.
+
+
+      For more information, please see
+
+      [Employment
+      Verification](https://help.checkr.com/hc/en-us/articles/228391768)
+
+      in the Checkr Help Center.
+  - name: Identity Document Verification
+    description: >
+      Use an Identity Document Verification to verify a candidate's ID.
+
+
+      For this screening, candidates are sent a link to a Checkr capture page.
+
+      They are then asked to use this page to capture a selfie and an image of
+      their ID.
+
+
+      For more information, please see
+
+      [Identity Document
+      Verification](https://help.checkr.com/hc/en-us/articles/360037141854)
+
+      in the Checkr Help Center.
+
+
+      Please work with your Checkr Customer Success manager to enable this
+      endpoint for your account.
+protocols:
+  - HTTPS
+baseUri: 'https://api.checkr.com/v1'
+(components):
+  parameters: {}
+  responses: {}
+  callbacks: {}
+  examples: {}
+  headers: {}
+  requestBodies: {}
+(tagGroups):
+  'null':
+    tags:
+      - SSN Trace
+      - Sex Offender Registry Search
+      - Global Watchlist Search
+      - National Criminal Search
+      - Federal Criminal Search
+      - County Criminal Search
+      - State Criminal Search
+      - Motor Vehicle Report
+      - Education Verification
+      - Employment Verification
+      - Identity Document Verification
+    name: Screenings
+securitySchemes:
+  OAuth2:
+    description: |
+      Mule OAuth 2.0.
+    type: OAuth 2.0
+    settings:
+      authorizationUri: 'https://partners.checkr.com/authorize/'
+      accessTokenUri: 'https://api.checkr.com/oauth/tokens'
+      authorizationGrants:
+        - authorization_code
+      scopes:
+        - admin
+        - read
+        - write
+    (amf-settings):
+      authorizationGrants":
+        - 'authorization_code,'
+        - 'implicit,'
+        - 'urn:ietf:params:oauth:grant-type:basic-token'
+      links: {}
+types:
+  Account:
+    type: object
+    properties:
+      adverse_action_email:
+        description: >
+          Email used to send pre- and post- Adverse Action notices on your
+          behalf to candidates.
+
+          It's also the address that will receive undeliverable notices if an
+          Adverse Action notice
+
+          isn't deliverable to a candidate.
+        example: john.doe@example.com
+        type: string
+        (oas-format): email
+      api_authorized:
+        description: >
+          Determines whether Account is authorized to use the API to order
+          background checks.
+        example: true
+        default: false
+        type: boolean
+      authorized:
+        description: |
+          Determines whether Account is credentialed to order background checks.
+        example: true
+        default: false
+        type: boolean
+      available_screenings:
+        description: |
+          List of screening types available for the Account.
+        example:
+          - county_civil_search
+          - county_criminal_search
+          - municipal_criminal_search
+          - employment_verification
+          - federal_civil_search
+          - federal_criminal_search
+          - motor_vehicle_report
+          - national_criminal_search
+          - sex_offender_search
+          - ssn_trace
+          - state_criminal_search
+        type: array
+        items:
+          pattern: '[a-z_]+'
+          type: string
+      billing_email:
+        description: >
+          Email that is used for Checkr to contact you about invoices and other
+          billing communication.
+        example: john.doe@example.com
+        type: string
+        (oas-format): email
+      company:
+        description: Company details
+        type: object
+        properties:
+          city:
+            description: City where company is headquartered.
+            example: Wilmington
+            type: string
+          dba_name:
+            description: >
+              Doing-Business-As name of Company displayed in Checkr emails and
+              branded web pages.
+            example: ACME
+            type: string
+          incorporation_state:
+            description: |
+              Incorporation state. Format: `ISO 3166-2:US`.
+            example: DE
+            type: string
+          incorporation_type:
+            description: Type of incorporation.
+            example: llc
+            type: string
+            enum:
+              - association
+              - co-ownership
+              - corporation
+              - joint-venture
+              - limited-partnership
+              - llc
+              - llp
+              - non-profit
+              - partnership
+              - s-corporation
+              - sp
+              - trusteeship
+          industry:
+            description: >-
+              Industry that company operates in, as NAICS code (see
+              https://www.naics.com)
+            pattern: '[0-9-]+'
+            example: 52-59
+            type: string
+          name:
+            description: Registered company name.
+            example: Acme Corporation
+            type: string
+          phone:
+            description: Company phone number.
+            example: 206-555-0100
+            type: string
+          state:
+            description: |
+              State where company is headquartered. Format: `ISO 3166-2:US`.
+            example: DE
+            type: string
+          street:
+            description: Street address where company is headquartered.
+            example: 123 Main St
+            type: string
+          tax_id:
+            description: Company Tax ID number.
+            example: '123456789'
+            type: string
+          website:
+            description: Company's official corporate website.
+            example: 'https://example.com'
+            type: string
+          zipcode:
+            description: Zipcode where company is headquartered.
+            example: '19801'
+            type: string
+      compliance_contact_email:
+        description: >
+          Email for the main point of contact on your side to communicate with
+          Checkr about
+
+          compliance issues or updates. This is also where we'll send you the
+          results of candidate
+
+          disputes (for example, if we changed the information on a report).
+        example: compliance.team@example.com
+        type: string
+        (oas-format): email
+      created_at:
+        description: Time at which the Account was created.
+        example: '2020-01-07T00:26:49Z'
+        type: datetime
+      default_compliance_city:
+        description: |
+          Fallback compliance city if candidate location is not provided.
+        example: San Francisco
+      default_compliance_state:
+        description: >
+          Fallback compliance state if candidate location is not provided.
+          Format: `ISO 3166-2:US`.
+        example: CA
+      geos_required:
+        description: Determines whether a Geo must be provided to order a Report.
+        default: false
+        type: boolean
+      id:
+        type: ResourceId
+      name:
+        description: Name of Account displayed in the Dashboard.
+        example: Acme Corp
+        type: string
+      object:
+        type: string
+        enum:
+          - account
+      purpose:
+        description: |
+          Permissible purpose to run background checks.
+          Determines which background checks the Account is credentialed for.
+        default: employment
+        type: string
+        enum:
+          - employment
+          - business
+          - insurance
+          - tenant
+      support_email:
+        description: >
+          Email address used for candidates to contact you if they need to
+          supply evidence
+
+          of rehabilitation or other context during the Adverse Action process.
+        example: support@example.com
+        (oas-format): email
+        anyOf:
+          - type: string
+          - type: nil
+      support_phone:
+        description: >
+          Phone number used for candidates to contact you if they need to supply
+          evidence of
+
+          rehabilitation or other context during the Adverse Action process.
+        example: 206-555-0188
+        anyOf:
+          - type: string
+          - type: nil
+      technical_contact_email:
+        description: >
+          The main point of contact on your side to communicate with Checkr
+          about technical issues or
+
+          updates.
+        example: jane.smith@example.com
+        type: string
+        (oas-format): email
+      uri:
+        type: ResourceURI
+        example: /v1/accounts/e44aa283528e6fde7d542194
+      uri_name:
+        description: >
+          Unique slug referencing the Account. This appears in some
+          Account-specific URL paths.
+        pattern: '[a-z0-9-_]+'
+        example: acme-corp
+        type: string
+  Address:
+    type: object
+    properties:
+      city:
+        description: City.
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: San Francisco
+        type: string
+      country:
+        description: |
+          Country.
+
+          Format: `ISO 3166-1 alpha-2`
+        example: US
+        type: string
+      state:
+        description: State.
+        example: CA
+        type: string
+      street:
+        description: Street address.
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: 123 Main St.
+        type: string
+      unit:
+        description: 'House, building or apartment number.'
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: '2000'
+        type: string
+      zipcode:
+        description: 5-digit zip code.
+        example: '90401'
+        type: string
+  AdverseAction:
+    type: object
+    properties:
+      adverse_items:
+        description: Array of Adverse Items on which the Action is based.
+        type: array
+        items:
+          type: AdverseItem
+      canceled_at:
+        description: Time at which the Adverse Action was canceled.
+      created_at:
+        description: Time at which the Adverse Action was created.
+        example: '2016-09-29T17:39:49Z'
+        type: datetime
+      id:
+        type: ResourceId
+      individualized_assessment_engaged:
+        default: false
+        type: boolean
+      object:
+        type: string
+        enum:
+          - adverse_action
+        (oas-readOnly): true
+      post_notice_ready_at:
+        description: >
+          Timestamp after which the post notice can be sent. (Often 7 days after
+          `created_at`.)
+        example: '2016-10-06T17:39:48Z'
+        type: datetime
+      post_notice_scheduled_at:
+        description: >
+          Timestamp at which the post Adverse Action notification will be sent.
+          This time is
+
+          dependent on the time at which the Pre-Adverse Action was created, and
+          related settings
+
+          within your Checkr system.
+        example: '2016-10-07T12:34:00Z'
+        type: datetime
+      report_id:
+        description: ID of the Report causing this adverse action.
+        example: b861a56db1b1b89692dd6118
+        type: string
+      status:
+        description: Status of the Adverse Action.
+        example: pending
+        type: string
+        enum:
+          - pending
+          - complete
+          - dispute
+          - canceled
+      uri:
+        type: ResourceURI
+        example: /v1/adverse_actions/57ed51e57619e8002a6683f2
+  AdverseItem:
+    type: object
+    properties:
+      id:
+        type: ResourceId
+      object:
+        description: Defines the object type.
+        type: string
+        enum:
+          - adverse_item
+        (oas-readOnly): true
+      text:
+        description: Human-readable description of the Adverse Item.
+        example: 'License status: Suspended'
+        type: string
+  BadPiiRequestError:
+    type: object
+    properties:
+      error:
+        example: Candidate has already had PII removed
+        type: string
+  BadRequestError:
+    type: object
+    properties:
+      error:
+        example: Dl number 'F211165' does not match the license number format in CA
+        type: string
+  Candidate:
+    type: object
+    properties:
+      adjudication:
+        description: The adjudication for the Candidate’s most recently created Report.
+        type: string
+        enum:
+          - engaged
+          - pre_adverse_action
+          - post_adverse_action
+      copy_requested:
+        description: 'If `true`, the candidate has asked to receive a copy of their report.'
+        default: false
+        type: boolean
+      custom_id:
+        description: >-
+          Client-assigned unique ID for the Candidate. Can be used to map Checkr
+          Candidate IDs to your internal tracking system, and to search for
+          Candidates through both the Dashboard and the API.
+        type: string
+      dob:
+        description: Candidate’s date of birth.
+        example: '1970-01-22'
+        type: date-only
+      driver_license_number:
+        description: Candidate’s driver license number.
+        example: F211165
+        type: string
+      driver_license_state:
+        description: |
+          Candidate’s driver license state of issue.
+          Format: `ISO 3166-2:US`.
+        example: CA
+        type: string
+      email:
+        description: |
+          Candidate’s email address.
+        example: john.smith@gmail.com
+        type: string
+        (oas-format): email
+      first_name:
+        description: |
+          Candidate’s first name.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: John
+        type: string
+      geo_ids:
+        description: Array of Geo IDs.
+        type: array
+        items:
+          type: string
+      id:
+        type: ResourceId
+      last_name:
+        description: Candidate’s last name.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: Smith
+        type: string
+      middle_name:
+        description: >
+          Candidate’s middle name. This field is required if `no_middle_name` is
+          `false`.
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: Alfred
+        type: string
+      mother_maiden_name:
+        description: |
+          Candidate’s mother’s maiden name.
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: Jones
+        type: string
+      no_middle_name:
+        description: >
+          Required if no `middle_name` is provided. `true` if the candidate has
+          no middle name.
+        default: false
+        type: boolean
+      object:
+        type: string
+        enum:
+          - candidate
+        (oas-readOnly): true
+      phone:
+        description: Candidate’s phone number.
+        example: 5555555555
+      previous_driver_license_number:
+        description: Candidate’s previous driver license number.
+        example: F1501739
+        type: string
+      previous_driver_license_state:
+        description: |
+          State that issued the candidate’s previous driver license.
+          Format: `ISO 3166-2:US`.
+        example: MD
+        type: string
+      report_ids:
+        description: Array of Report IDs.
+        type: array
+        items:
+          type: string
+        (oas-readOnly): true
+      ssn:
+        description: >-
+          Candidate’s Social Security Number. This value will be redacted in all
+          return calls, except for the last four digits.
+        example: XXX-XX-4645
+        type: string
+      uri:
+        type: ResourceURI
+        example: /v1/candidates/e44aa283528e6fde7d542194
+      zipcode:
+        description: Candidate’s 5-digit zip code.
+        example: '90401'
+        type: string
+  Charge:
+    type: object
+    properties:
+      arrest_date: {}
+      assessment:
+        type: string
+      charge:
+        example: Fraud
+        type: string
+      charge_date: {}
+      charge_id: {}
+      charge_type: {}
+      classification:
+        example: Felony
+        type: string
+      conviction_date:
+        example: '2011-06-02'
+      court:
+        example: Circuit & District Court
+        type: string
+      defendant: {}
+      deposition: {}
+      deposition_date:
+        example: '2014-05-27'
+        type: date-only
+      disposition:
+        example: Guilty
+        type: string
+      disposition_date:
+        example: '2011-06-02'
+        type: date-only
+      jail_time:
+        description: Sentenced to jail time.
+        example: 15 Day(s)
+        type: string
+      next_court_date:
+        example: '2011-06-02'
+      offense_date:
+        example: '2011-04-22'
+        type: date-only
+      plaintiff: {}
+      plea:
+        type: string
+      prison_time:
+        description: Sentenced to prison time.
+        example: 4 Year(s)
+        type: string
+      probation_status: {}
+      probation_time:
+        description: Sentenced to probation time.
+        type: string
+      release_date:
+        example: '2011-06-02'
+      restitution:
+        description: Sentenced to restitution.
+        example: '220'
+        type: string
+      sentence:
+        example: 'Active Punishment Minimum: 10Y'
+        type: string
+      sentence_date: {}
+  CountyCriminalSearch:
+    type: ScreeningsGenericPayload
+    properties:
+      county:
+        description: County in which the record was recorded.
+        example: SAN FRANCISCO
+        type: string
+      estimated_completion_date:
+        description: Estimated date of completion for the Search.
+        example: '2019-03-13'
+        type: date-only
+      estimated_completion_time:
+        description: >-
+          Estimated time of completion for the Search. This estimate will be
+          based on the maximum turnaround time across all counties searched.
+        example: '2019-03-13T16:31:07Z'
+        type: datetime
+      filtered_by_positive_adjudication_records:
+        description: >-
+          Array of CriminalRecord objects filtered out by your account’s
+          Positive Adjudication Matrix.
+        type: array
+        items:
+          type: Record
+          properties:
+            filtered_by_positive_adjudication_charges:
+              description: >-
+                Array of CriminalCharge objects filtered out by your account’s
+                Positive Adjudication Matrix.
+              type: array
+              items:
+                type: Charge
+      object:
+        type: string
+        enum:
+          - county_criminal_search
+      records:
+        description: Array of CriminalRecord objects.
+        type: array
+        items:
+          type: Record
+          properties:
+            charges:
+              type: array
+              items:
+                type: Charge
+                properties:
+                  arrest_date:
+                    description: Recorded arrest date.
+                    example: '2011-04-22'
+                  charge:
+                    example: Sell Cocaine
+                    type: string
+                  defendant:
+                    description: Defendant's name on the record.
+                    example: John Alfred Smith
+                  sentence_date:
+                    description: Recorded sentence date.
+                    example: '2011-06-02'
+      state:
+        description: State in which the record was recorded.
+        example: CA
+        type: string
+      status:
+        example: consider
+        type: ScreeningStatus
+      turnaround_time:
+        example: 100800
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/county_criminal_searches/539fdcf335644a0ef4000001
+  Document:
+    type: object
+    properties:
+      content_type:
+        description: File’s content type.
+        example: image/jpeg
+        type: string
+      created_at:
+        description: Time at which the Document was created.
+        example: '2015-02-11T20:01:50Z'
+        type: datetime
+      download_uri:
+        description: JSON encoded URL of the document. This URL is valid for 15 minutes.
+        example: 'https://checkr-documents.checkr.com/download_path'
+        type: string
+      filename:
+        description: File’s name.
+        example: 1423684910_candidate_driver_license.jpg
+        type: string
+      filesize:
+        description: File’s size in bytes.
+        example: 8576
+        type: integer
+      id:
+        type: ResourceId
+      object:
+        type: string
+        enum:
+          - document
+        (oas-readOnly): true
+      type:
+        description: The type of Document.
+        example: driver_license
+        type: string
+        enum:
+          - consent
+          - credit_report_consent_form
+          - driver_license
+          - driver_license_back
+          - driver_license_history
+          - drug_screen_donor_pass
+          - education_proof
+          - employment_proof
+          - health_screening_occupational_health_document
+          - health_screening_result_certificate
+          - international_consent_form
+          - passport
+          - pdf_credit_report
+          - pdf_health_report
+          - pdf_individualized_assessment
+          - pdf_report
+          - pdf_self_disclosure
+          - pdf_wisconsin_doj
+          - previous_driver_license
+          - screening_pass
+          - selfie
+          - ssn_card
+          - state_id_card
+          - state_id_card_back
+  DuplicateGeoError:
+    type: object
+    properties:
+      error:
+        example: 'Duplicate geo, name: Napa, state: CA already exists'
+        type: string
+  EducationVerification:
+    type: ScreeningsGenericPayload
+    properties:
+      object:
+        type: string
+        enum:
+          - education_verification
+      records:
+        description: Array of CandidateEducationHistory records.
+        type: array
+        items:
+          type: object
+          properties:
+            events:
+              type: array
+              items:
+                type: object
+                properties:
+                  created_at:
+                    example: '2017-06-29T14:42:47Z'
+                    type: string
+                  text:
+                    example: started
+                    type: string
+                  type:
+                    example: verification_start
+                    type: string
+            id:
+              example: 592311d2113adf7e9c9f66b8
+              type: string
+            result:
+              type: object
+              properties:
+                verified:
+                  type: boolean
+            school:
+              type: School
+            status:
+              example: consider
+              type: string
+              enum:
+                - pending
+                - clear
+                - consider
+      status:
+        type: ScreeningStatus
+        example: consider
+      turnaround_time:
+        example: 603216
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/education_verifications/595511af261066005170f47
+  Employer:
+    type: object
+    properties:
+      address:
+        type: Address
+      candidate_id:
+        description: ID of the Candidate being screened.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: xxx
+        type: string
+      contract_type:
+        description: Candidate’s contract type.
+        example: full_time
+        type: string
+        enum:
+          - full_time
+          - part_time
+          - contract
+          - internship
+      do_not_contact:
+        description: 'If `true`, the employer will not be contacted about the Candidate.'
+        default: false
+        type: boolean
+      employer_url:
+        description: Employer’s website.
+        example: www.employer.com
+        type: string
+      end_date:
+        description: Candidate’s end date with the employer.
+        example: '2017-05-01'
+        type: date-only
+      id:
+        type: ResourceId
+      manager:
+        type: object
+        properties:
+          email:
+            description: Candidate's manager's email address.
+            example: joesmith@checkr.co
+            type: string
+          name:
+            description: Candidate's manager's name.
+            example: Joe Smith
+            type: string
+          phone:
+            description: Candidate's manager's phone number.
+            example: 212-555-1234
+            type: string
+          title:
+            description: Candidate's manager's title.
+            example: Engineering Manager
+            type: string
+      name:
+        description: Candidate’s employer’s name.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: Checkr
+        type: string
+      object:
+        type: string
+        enum:
+          - employer
+        (oas-readOnly): true
+      position:
+        description: Candidate’s position or title.
+        example: Software Engineer
+        type: string
+      salary:
+        description: Candidate’s gross salary in dollars annually.
+        example: 10000
+        type: integer
+      start_date:
+        description: Candidate’s start date with the employer.
+        example: '2016-06-01'
+        type: date-only
+      uri:
+        type: ResourceURI
+        example: >-
+          /v1/candidates/e44aa283528e6fde7d542194/employers/ca27df84be5b50dfa7ee1cda
+  EmploymentVerification:
+    type: ScreeningsGenericPayload
+    properties:
+      object:
+        type: string
+        enum:
+          - employment_verification
+      records:
+        description: Array of CandidateEmploymentHistory objects.
+        type: array
+        items:
+          type: object
+          properties:
+            employer:
+              type: Employer
+            events:
+              type: array
+              items:
+                type: object
+                properties:
+                  created_at:
+                    example: '2017-06-29T14:42:44Z'
+                    type: string
+                  text:
+                    example: started
+                    type: string
+                  type:
+                    example: verification_start
+                    type: string
+            id:
+              example: 592311d2113adf7e9c9f66b8
+              type: string
+            result:
+              type: object
+              properties:
+                contract_type:
+                  type: ResultPayload
+                  properties:
+                    comments:
+                      example: Full Time
+                      type: string
+                    ignored:
+                      example: package
+                end_date:
+                  type: ResultPayload
+                  properties:
+                    comments:
+                      example: '2017-05-01'
+                      type: string
+                position:
+                  type: ResultPayload
+                  properties:
+                    comments:
+                      example: Software Development Engineer
+                      type: string
+                    ignored:
+                      example: manual
+                    verified:
+                      example: true
+                      type: boolean
+                questions:
+                  description: List of questions for the candidate's employer.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      response:
+                        description: The answer received in response to the question.
+                        example: They resigned.
+                        type: string
+                      sort_number:
+                        description: The position of the question within the list.
+                        example: 1
+                        type: integer
+                      text:
+                        description: The question that was asked.
+                        example: >-
+                          What is the documented reason for the employee's
+                          departure?
+                        type: string
+                salary:
+                  type: ResultPayload
+                  properties:
+                    comments:
+                      example: '100000'
+                      type: string
+                    verified:
+                      example: true
+                      type: boolean
+                start_date:
+                  type: ResultPayload
+                  properties:
+                    comments:
+                      example: '2016-06-01'
+                      type: string
+            status:
+              example: consider
+              type: string
+              enum:
+                - pending
+                - clear
+                - consider
+      status:
+        type: ScreeningStatus
+        example: consider
+      turnaround_time:
+        example: 603216
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/employment_verifications/595511af261066005170f471
+  FederalCriminalSearch:
+    type: ScreeningsGenericPayload
+    properties:
+      object:
+        type: string
+        enum:
+          - federal_criminal_search
+      records:
+        description: Array of CriminalRecord objects.
+        type: array
+        items:
+          type: Record
+          properties:
+            arresting_agency:
+              type: string
+            charges:
+              type: array
+              items:
+                type: Charge
+      status:
+        type: ScreeningStatus
+        example: clear
+      turnaround_time:
+        example: 90
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/federal_criminal_searches/539fd88c101897f7cd000006
+  ForbiddenError:
+    type: object
+    properties:
+      error:
+        example: You do not have permission to access the requested resource
+        type: string
+  Geo:
+    type: object
+    properties:
+      city:
+        description: City for the Geo.
+        example: San Francisco
+        type: string
+      created_at:
+        description: Time at which the Geo was created.
+        example: '2015-01-18T12:34:00Z'
+        type: datetime
+      deleted_at:
+        description: Time at which the Geo was deleted.
+      id:
+        type: ResourceId
+      name:
+        description: Human-readable name of the Geo.
+        example: SF CA
+        type: string
+      object:
+        type: string
+        enum:
+          - geo
+        (oas-readOnly): true
+      state:
+        description: State for the Geo.
+        example: CA
+        type: string
+      uri:
+        type: ResourceURI
+        example: /v1/geos/e44aa283528e6fde7d542194
+  GeoCityUpdatedError:
+    type: object
+    properties:
+      error:
+        example: Geo city can not be updated if city already exists
+        type: string
+  GlobalWatchlistSearch:
+    type: ScreeningsGenericPayload
+    properties:
+      object:
+        type: string
+        enum:
+          - global_watchlist_search
+      records:
+        description: Array of CriminalRecord objects.
+        type: array
+        items:
+          type: Record
+          properties:
+            charges:
+              type: array
+              items:
+                type: Charge
+                properties:
+                  charge:
+                    description: Recorded charge.
+                    example: RICO murder
+                    type: string
+      status:
+        type: ScreeningStatus
+        example: consider
+      turnaround_time:
+        example: 90
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/global_watchlist_searches/539fd88c101897f7cd000008
+  IdentityDocumentVerification:
+    type: ScreeningsGenericPayload
+    properties:
+      capture_url:
+        description: The URL the candidate uses to verify their Identity Documents.
+        example: 'https://capture.checkr.com/idv/d8b712f6774f35b45d01'
+        type: string
+      checks:
+        description: An array of objects used to verify the provided identity documents.
+        type: object
+        properties:
+          candidate_data_match:
+            description: >
+              Compares data extracted during Identity Document Verification to
+              Candidate-provided data.
+            example:
+              - name: full_name
+                status: clear
+              - name: dob
+                status: clear
+            type: array
+            items:
+              type: SubCheck
+              properties:
+                name:
+                  type: string
+                  enum:
+                    - full_name
+                    - dob
+          document_validation:
+            description: |
+              Evaluates the quality of the ID provided.
+            example:
+              - name: compromised
+                status: clear
+              - name: data_consistency
+                status: clear
+              - name: data_validation
+                status: clear
+              - name: visual_authenticity
+                status: clear
+              - name: image_integrity
+                status: clear
+            type: array
+            items:
+              type: SubCheck
+              properties:
+                name:
+                  type: string
+                  enum:
+                    - compromised
+                    - data_consistency
+                    - data_validation
+                    - visual_authenticity
+                    - image_integrity
+          face_match:
+            description: |
+              Compares the selfie provided to the photo on the ID.
+            example:
+              - name: face_match
+                status: clear
+              - name: image_integrity
+                status: clear
+              - name: visual_authenticity
+                status: clear
+            type: array
+            items:
+              type: SubCheck
+              properties:
+                name:
+                  type: string
+                  enum:
+                    - face_match
+                    - image_integrity
+                    - visual_authenticity
+      document_ids:
+        description: >-
+          IDs of [Candidate Documents](#tag/Documents) captured for the
+          screening.
+        example:
+          - fb4995376bc66d6fb67f1c22
+          - 58261bf0aff84b41e5d81024
+          - ced73ab5780fbba0d3f47ffc
+        type: array
+        items:
+          type: string
+      extracted_data:
+        description: Data extracted from the ID.
+        type: object
+        properties:
+          dob:
+            example: '1975-01-10'
+            type: date-only
+          document_expiration:
+            example: '2020-01-01'
+            type: date-only
+          document_issuer:
+            example: Department of Motor Vehicles
+            type: string
+          document_issuer_country:
+            example: USA
+            type: string
+          document_issuer_region:
+            example: CA
+            type: string
+          document_number:
+            example: F1234567
+            type: string
+          document_type:
+            example: drivers_license
+            type: string
+          first_name:
+            example: Jersey
+            type: string
+          full_name:
+            example: Jersey John Smith
+            type: string
+          gender:
+            example: Male
+            type: string
+          last_name:
+            example: Smith
+            type: string
+          middle_name:
+            example: John
+            type: string
+      object:
+        type: string
+        enum:
+          - identity_document_verification
+      provider:
+        description: Checkr partner that processed the screening.
+        example: idv_partner
+        type: string
+      status:
+        description: Status of the verification.
+        example: complete
+        type: string
+        enum:
+          - pending
+          - complete
+          - suspended
+      turnaround_time:
+        example: 603216
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/identity_document_verifications/539fd88c101897f6cd000010
+      verified:
+        description: >-
+          if `true`, document validity, selfie match, and PII match between the
+          IDV and Candidate data have passed.
+        example: true
+        default: false
+        type: boolean
+  Invitation:
+    type: object
+    properties:
+      candidate_id:
+        description: ID of the Candidate to whom the Invitation was sent.
+        example: 551564b7865af96a28b13f36
+        type: string
+      completed_at:
+        description: Time at which the Invitation was completed by the candidate.
+      created_at:
+        description: Time at which the Invitation was created.
+        example: '2015-05-14T17:45:34Z'
+        type: datetime
+      deleted_at:
+        description: Time at which the Invitation was deleted.
+      expires_at:
+        description: Time at which the Invitation will expire.
+        example: '2015-05-21T17:45:34Z'
+        type: datetime
+      id:
+        type: ResourceId
+      invitation_url:
+        description: URL for the Invitation.
+        example: 'https://apply.checkr.com/invite/try-checkr/290f9d6d6e46/test'
+        type: string
+      object:
+        type: string
+        enum:
+          - invitation
+        (oas-readOnly): true
+      package:
+        description: Package associated with the Invitation.
+        example: driver_pro
+        type: string
+      report_id:
+        description: >-
+          ID of the Report created by the completion of this Invitation. Will be
+          null if the Invitation has not yet been completed.
+      status:
+        description: Status of the Invitation.
+        example: pending
+        type: string
+        enum:
+          - pending
+          - completed
+          - expired
+      uri:
+        type: ResourceURI
+        example: /v1/invitations/e44aa283528e6fde7d542194
+  MotorVehicleReport:
+    type: ScreeningsGenericPayload
+    properties:
+      accidents:
+        description: Array of Accident objects.
+        type: array
+        items:
+          type: object
+          properties:
+            accident_date:
+              example: '2009-04-12'
+              type: string
+            acd_code: {}
+            action_taken:
+              example: police report filed
+              type: string
+            city: {}
+            county:
+              example: SAN FRANCISCO
+              type: string
+            description:
+              example: property damage
+              type: string
+            enforcing_agency:
+              example: San Francisco PD
+              type: string
+            fatality_accident:
+              default: false
+              type: boolean
+            fatality_count:
+              type: integer
+            fine_amount: {}
+            injury_accident:
+              default: false
+              type: boolean
+            injury_count:
+              type: integer
+            jurisdiction: {}
+            license_plate:
+              example: 6UM6938
+              type: string
+            order_number:
+              example: 33-435932
+              type: string
+            points:
+              type: string
+            policy_number: {}
+            reinstatement_date: {}
+            report_number: {}
+            severity: {}
+            state:
+              description: |
+                State.
+                Format: `ISO 3166-2:US`
+            state_code: {}
+            ticket_number: {}
+            vehicle_speed: {}
+            vehicles_involved_count:
+              example: 3
+              type: integer
+            violation_number: {}
+      custom_rules:
+        description: Array of the custom rules applied to generate this MVR.
+        type: array
+        items:
+          type: string
+      dob:
+        description: >-
+          Date of Birth of the individual the license was issued to as returned
+          by the DMV.
+        example: '1980-01-01'
+        type: date-only
+      experience_failed:
+        description: 'If true, the MVR has an unsatisfied StrictExperience rule.'
+        default: false
+        type: boolean
+      expiration_date:
+        description: Date on which the license expires.
+        example: '2016-07-24'
+        type: date-only
+      first_issued_date:
+        description: >-
+          Date on which the license was first issued. Used to determine if the
+          candidate meets minimum experience requirements.
+        example: '2000-01-14'
+        type: date-only
+      full_name:
+        description: 'Candidate’s full name, as listed with the DMV.'
+        example: John Alfred Smith
+        type: string
+      inferred_issued_date:
+        description: Checkr-inferred license issued date based on data returned by the DMV.
+      issued_date:
+        description: Date on which the license was issued.
+        example: '2006-12-03'
+        type: date-only
+      license_class:
+        description: Class of the license as returned by the DMV.
+        example: C
+        type: string
+      license_number:
+        description: Candidate’s driver’s license number.
+        example: F2111132
+        type: string
+      license_state:
+        description: Candidate’s driver’s license state of issue.
+        example: CA
+        type: string
+      license_status:
+        description: >-
+          Status of the license as returned by the DMV if found, or status
+          indicating the license is not found or not available.
+        example: 'valid, expired, not_found'
+        type: string
+      license_type:
+        description: Type of the license as returned by the DMV.
+        example: 'personal, commercial, or non-commercial'
+        type: string
+      not_found:
+        description: >-
+          No license found by the DMV matching the candidate's license
+          number/state and PII.
+        default: false
+        type: boolean
+      object:
+        type: string
+        enum:
+          - motor_vehicle_report
+      previous_license_number:
+        description: Candidate’s previous driver’s license number.
+        example: F2111132
+        type: string
+      previous_license_state:
+        description: Candidate’s previous driver’s license state of issue.
+        example: CA
+        type: string
+      privilege_to_drive:
+        description: >-
+          Displays the validity of the license, as determined by the returned
+          `license_status`, `license_class`, and `expiration_date`. If one or
+          more of these three fields indicates that the license is not valid,
+          `privilege_to_drive` is `invalid`.
+        example: valid
+        type: string
+        enum:
+          - valid
+          - invalid
+      restrictions:
+        description: 'Array of restrictions, as returned by the individual states'' DMV.'
+        type: array
+        items:
+          type: string
+      status:
+        type: ScreeningStatus
+        example: consider
+      suspensions:
+        description: Array of Suspension objects.
+        type: array
+        items:
+          type: object
+          properties:
+            description:
+              example: ACCUMULATION OF CONVICTIONS OR POINTS
+              type: string
+            end_date:
+              example: '2012-03-21'
+              type: string
+            start_date:
+              example: '2011-11-14'
+              type: string
+            state:
+              example: CA
+              type: string
+      turnaround_time:
+        example: 90
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/motor_vehicle_reports/539fd88c101897f7cd000007
+      violations:
+        description: Array of Violation objects.
+        type: array
+        items:
+          type: object
+          properties:
+            acd_code: {}
+            category: {}
+            city: {}
+            conviction_date:
+              example: '2010-04-11'
+              type: string
+            county:
+              example: SANTA CLARA
+              type: string
+            court_name: {}
+            description:
+              example: speeding 15-19 mph
+              type: string
+            disposition: {}
+            docket: {}
+            issued_date:
+              example: '2011-11-14'
+              type: string
+            points:
+              type: integer
+            state:
+              example: California
+              type: string
+            state_code: {}
+            ticket_number:
+              example: 2D55555
+              type: string
+            type:
+              example: conviction
+              type: string
+  NationalCriminalSearch:
+    type: ScreeningsGenericPayload
+    properties:
+      object:
+        type: string
+        enum:
+          - national_criminal_search
+      records:
+        description: Array of CriminalRecord objects.
+        type: array
+        items:
+          type: Record
+          properties:
+            arresting_agency:
+              type: string
+            charges:
+              type: array
+              items:
+                type: Charge
+      status:
+        type: ScreeningStatus
+        example: clear
+      turnaround_time:
+        example: 90
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/national_criminal_searches/539fd88c101897f7cd000006
+  Package:
+    type: object
+    properties:
+      created_at:
+        description: Time at which the Package was created.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      deleted_at:
+        description: Time at which the Package was deleted.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      id:
+        type: ResourceId
+      name:
+        description: Human-readable name of the Package.
+        example: Criminal Pro
+        type: string
+      object:
+        type: string
+        enum:
+          - package
+        (oas-readOnly): true
+      price:
+        description: Package price in USD cents.
+        example: 6500
+        type: integer
+      screenings:
+        type: array
+        items:
+          type: object
+          properties:
+            subtype: {}
+            type:
+              example: ssn_trace
+              type: string
+              enum:
+                - ssn_trace
+                - sex_offender_search
+                - global_watchlist_search
+                - national_criminal_search
+                - municipal_criminal_search
+                - county_criminal_search
+                - state_criminal_search
+                - federal_criminal_search
+                - county_civil_search
+                - federal_civil_search
+                - personal_reference_verification
+                - professional_reference_verification
+                - education_verification
+                - employment_verification
+                - drug_screening
+                - international_criminal_search
+                - motor_vehicle_report
+                - eviction_search
+                - credit_report
+                - facis_search
+      slug:
+        description: Unique key identifier of the Package.
+        example: criminal_pro
+        type: string
+      uri:
+        type: ResourceURI
+        example: /v1/packages/e44aa283528e6fde7d542194
+  PreExistingAdverseActionError:
+    type: object
+    properties:
+      error:
+        example: >-
+          Report has a pre-existing adverse action. See
+          https://docs.checkr.com/#operation/updateReport
+        type: string
+  PredictionUnavailable:
+    type: object
+    properties:
+      error:
+        example: Report ETA prediction unavailable
+        type: string
+  Program:
+    type: object
+    properties:
+      created_at:
+        description: Time at which the resource was created.
+        example: '2017-08-07T16:51:09Z'
+        type: datetime
+      deleted_at:
+        description: Time at which the resource was deleted.
+      geo_ids:
+        description: Array of associated Geo IDs.
+        type: array
+        items:
+          type: string
+      id:
+        type: ResourceId
+      name:
+        description: Human-readable name of the Program.
+        example: Program A
+        type: string
+      object:
+        type: string
+        enum:
+          - program
+        (oas-readOnly): true
+      package_ids:
+        description: Array of associated Package IDs.
+        type: array
+        items:
+          type: string
+  Record:
+    type: object
+    properties:
+      address:
+        type: Address
+      arresting_agency:
+        example: DEA Boston Division
+        type: string
+      case_number:
+        example: 24323-DA
+        type: string
+      county:
+        example: SUFFOLK
+        type: string
+      court_jurisdiction: {}
+      court_of_record: {}
+      dob:
+        example: '1970-01-22'
+        type: string
+      file_date: {}
+      full_name:
+        example: John Alfred Smith
+        type: string
+      id:
+        type: ResourceId
+      state:
+        example: MA
+        type: string
+      yob:
+        example: 1970
+        type: integer
+  Report:
+    type: object
+    properties:
+      adjudication:
+        description: >
+          The adjudication for the candidate. `Null` if no adjudication has been
+          made.
+        example: engaged
+      arrest_search_id:
+        description: ID of the Arrest Search linked to the report.
+        example: 539fd88c101897f7cd000001
+        type: string
+      candidate_id:
+        description: ID of the candidate being screened.
+        example: e44aa283528e6fde7d542194
+        type: string
+      completed_at:
+        description: |
+          Time at which the report was completed.
+        example: '2014-01-18T12:35:30Z'
+        type: datetime
+      county_criminal_search_ids:
+        description: Array of County Criminal Search IDs linked to the Report.
+        type: array
+        items:
+          type: string
+      created_at:
+        description: |
+          Time at which the report was created.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      document_ids:
+        description: Array of Document IDs.
+        type: array
+        items:
+          type: string
+      drug_screening:
+        description: Embedded Drug Screening object
+        type: object
+        properties:
+          analytes:
+            description: Array of result analytes from the Drug Screening Panel
+            type: array
+            items:
+              type: object
+              properties:
+                disposition:
+                  description: Medical evaluation for specific drug
+                  example: negative
+                  type: string
+                  enum:
+                    - negative
+                    - positive
+                name:
+                  description: Name of drug that was tested
+                  example: Marijuana
+                  type: string
+                specimen_type:
+                  description: Type of specimen that was tested
+                  example: urine
+                  type: string
+                  enum:
+                    - urine
+                    - breath
+                    - saliva
+          appointment_id:
+            description: ID of the Appointment linked to the Drug Screening.
+            example: 539fd88c101897f7cd000001
+            type: string
+          disposition:
+            description: Medical evaluation for entire screening
+            example: negative
+            type: string
+            enum:
+              - negative
+              - positive
+              - canceled
+          events:
+            description: Array of drug screening events
+            type: array
+            items:
+              type: object
+              properties:
+                created_at:
+                  description: Time the event was created
+                  example: '2014-01-19T11:28:31Z'
+                  type: datetime
+                text:
+                  description: Additional note for event type
+                  example: Specimen Sent to Lab
+                  type: string
+                type:
+                  description: Type of event
+                  example: status_update
+                  type: string
+                  enum:
+                    - completed
+                    - screening_invitation_sent
+                    - screening_scheduled
+                    - status_update
+          id:
+            description: ID of the Drug Screening linked to the Report.
+            example: 539fd88c101897f7cd000001
+            type: string
+          mro_notes:
+            description: Notes from Medical Review Officer
+            example: Diluted Sample
+            type: string
+          screening_pass_expires_at:
+            description: Time the Candidate has to complete the drug screening
+            example: '2014-01-19T11:28:31Z'
+            type: datetime
+          status:
+            description: |
+              Status of the Drug Screening.
+            example: clear
+            type: string
+            enum:
+              - pending
+              - clear
+              - consider
+              - suspended
+      drug_screening_id:
+        description: ID of the Drug Screening linked to the report.
+        example: 539fd88c101897f7cd000001
+        type: string
+      due_time:
+        description: >
+          An estimate of the time the Report will be complete, calculated based
+          on the max value of times required to complete the Report’s individual
+          screenings.
+        example: '2014-01-19T11:28:31Z'
+        type: datetime
+      facis_search_id:
+        description: ID of the FACIS Search linked to the Report.
+        example: 539fd88c101897f7cd000001
+        type: string
+      federal_criminal_search_id:
+        description: ID of the Federal Criminal Search linked to the Report.
+        example: 539fd88c101897f7cd000001
+        type: string
+      geo_ids:
+        description: Array of Geo IDs.
+        type: array
+        items:
+          type: string
+      global_watchlist_search_id:
+        description: ID of the Global Watchlist Search linked to the Report.
+        example: 539fd88c101897f7cd000001
+        type: string
+      id:
+        type: ResourceId
+      identity_document_verification_id:
+        description: ID of the Identity Document Verification linked to the Report
+        example: 539fd88c101897f6cd000010
+        type: string
+      motor_vehicle_report_id:
+        description: ID of the Motor Vehicle Record Search linked to the Report.
+        example: 539fd88c101897f7cd000007
+        type: string
+      national_criminal_search_id:
+        description: ID of the National Criminal Search linked to the Report.
+        example: 539fd88c101897f7cd000006
+        type: string
+      object:
+        description: |
+          Defines the object type: `report`.
+        type: string
+        enum:
+          - report
+        (oas-readOnly): true
+      package:
+        description: |
+          Human-readable name of the Package.
+        example: driver_pro
+        type: string
+      personal_reference_verification_ids:
+        description: Array of Personal Reference Verification IDs linked to the Report.
+        type: array
+        items:
+          type: string
+      professional_reference_verification_ids:
+        description: Array of Professional Reference Verification IDs linked to the Report.
+        type: array
+        items:
+          type: string
+      program_id:
+        description: |
+          ID of the Program linked to the Report.
+        example: 00166f9ff39ec7b453adfaec
+        type: string
+      revised_at:
+        description: |
+          Time at which the report was revised.
+      sex_offender_search_id:
+        description: ID of the Sex Offender Registry Search linked to the Report.
+        example: 539fd88c101897f7cd000008
+        type: string
+      source:
+        description: >-
+          The method used to create the report. <br>`api` created from the
+          Checkr API. <br>`continuous_check` created automatically from a
+          Continuous Check return. <br>`form` created from the Checkr Hosted
+          Invite/Apply flow. <br>`manual_order` created from a manual order
+          (customer enters candidate's PII) originating in the Checkr Dashboard.
+          <br>`recurrence` created from a Subscription. <br>`web` created from a
+          report ordered from the Checkr Dashboard.
+        example: api
+        type: string
+        enum:
+          - api
+          - continuous_check
+          - form
+          - manual_order
+          - recurrence
+          - web
+      ssn_trace_id:
+        description: ID of the SSN Trace linked to the Report.
+        example: 539fd88c101897f7cd000001
+        type: string
+      state_criminal_searches:
+        description: Array of State Criminal Search IDs linked to the Report.
+        type: array
+        items:
+          type: string
+      status:
+        description: |
+          Status of the report.
+        example: clear
+        type: string
+        enum:
+          - pending
+          - clear
+          - consider
+          - complete
+          - suspended
+          - dispute
+      turnaround_time:
+        description: >-
+          Number of seconds the report took to complete, calculated from
+          `created_at` to `completed_at`.
+        example: 90
+        type: integer
+      upgraded_at:
+        description: |
+          Time at which the report was upgraded.
+      uri:
+        type: ResourceURI
+        example: /v1/reports/4722c07dd9a10c3985ae432a
+  ReportAddresses:
+    type: object
+    properties:
+      city:
+        example: San Francisco
+        type: string
+      end_date:
+        example: '2018-01-24T17:41:20Z'
+        type: datetime
+      name:
+        description: Name of location.
+        example: UCSF
+        type: string
+      start_date:
+        example: '2018-07-22T17:41:20Z'
+        type: datetime
+      state:
+        example: CA
+        type: string
+  ReportETA:
+    type: object
+    properties:
+      estimate_generated_at:
+        description: |
+          Time at which the prediction was created.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      estimated_completion_time:
+        description: |
+          Time at which the report is predicted to be finished.
+        example: '2019-07-31T00:00:00Z'
+        type: datetime
+  ReportTags:
+    type: object
+    properties:
+      count:
+        example: 2
+        type: number
+        (oas-format): integer
+      data:
+        example:
+          - name: EIN-234234234
+          - name: api-generated
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+      object:
+        example: list
+        type: string
+        enum:
+          - list
+  ResourceId:
+    description: ID of the resource
+    example: e44aa283528e6fde7d542194
+    type: string
+    (oas-readOnly): true
+  ResourceURI:
+    description: URI of the resource
+    type: string
+    (oas-readOnly): true
+  ResultPayload:
+    type: object
+    properties:
+      comments:
+        type: string
+      ignored: {}
+      verified:
+        example: true
+        type: boolean
+  School:
+    type: object
+    properties:
+      address:
+        type: Address
+      candidate_id:
+        description: Candidate linked to this School resource.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: 83ebeagdec0948690863766f792ead24d61fe3f9
+        type: string
+      current:
+        description: Defines whether the Candidate is currently enrolled.
+        default: false
+        type: boolean
+      degree:
+        description: Degree awarded to the Candidate.
+        example: BA
+        type: string
+      end_date:
+        description: Candidate’s end date with the School.
+        example: '2017-05-10'
+        type: date-only
+      id:
+        type: ResourceId
+      major:
+        description: Candidate’s major.
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: Russian Literature
+        type: string
+      minor:
+        description: Candidate’s minor.
+        example: Background Checks
+        type: string
+      name:
+        description: Name of the School.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: College University
+        type: string
+      object:
+        type: string
+        enum:
+          - school
+        (oas-readOnly): true
+      phone:
+        description: School's phone number.
+        example: 415-111-1111
+      school_url:
+        description: School’s website.
+        example: www.collegeuniversity.com
+        type: string
+      start_date:
+        description: Candidate’s start date with the School.
+        example: '2012-09-22'
+        type: date-only
+      uri:
+        type: ResourceURI
+        example: /v1/schools/e44aa283528e6fde7d542194
+      year_awarded:
+        description: Year in which the degree was awarded.
+        example: 2017
+        type: integer
+  SchoolDelete:
+    type: object
+    properties:
+      address:
+        type: Address
+      candidate_id:
+        description: Candidate linked to this School resource.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: 83ebeabdec09f5500863766f792ead24d61fe3f3
+        type: string
+      current:
+        description: Defines whether the candidate is currently enrolled. Default is false.
+        default: false
+        type: boolean
+      degree:
+        description: Degree awarded the candidate.
+        type: string
+      deleted_at:
+        description: Time at which the School was deleted.
+        type: datetime
+      end_date:
+        description: Candidate’s end date with the school.
+        example: '2017-05-10'
+        type: date-only
+      id:
+        type: ResourceId
+      major:
+        description: Candidate’s major.
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        type: string
+      minor:
+        description: Candidate’s minor.
+        example: Background Checks
+        type: string
+      name:
+        description: Name of the school.
+        minLength: 1
+        pattern: '[a-zA-Z0-9 -''.,]*'
+        example: College University
+        type: string
+      object:
+        type: string
+        enum:
+          - school
+        (oas-readOnly): true
+      phone:
+        description: School's phone number.
+        example: 415-111-1111
+      school_url:
+        description: School’s website.
+        example: www.collegeuniversity.com
+        type: string
+      start_date:
+        description: Candidate’s start date with the school.
+        example: '1970-01-22'
+        type: date-only
+      uri:
+        type: ResourceURI
+        example: /v1/schools/e44aa283528e6fde7d542194
+      year_awarded:
+        description: Year in which the degree was awarded.
+        example: 2017
+        type: integer
+  ScreeningStatus:
+    description: Status of the screening.
+    type: string
+    enum:
+      - pending
+      - clear
+      - consider
+  ScreeningsGenericPayload:
+    type: object
+    properties:
+      completed_at:
+        description: Time at which the screening was completed.
+        example: '2014-01-18T12:35:30Z'
+        type: datetime
+      created_at:
+        description: Time at which the screening was created.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      id:
+        type: ResourceId
+      object:
+        type: string
+      status:
+        type: string
+      turnaround_time:
+        description: >-
+          Number of seconds the screening took to complete, calculated from
+          `created_at` to `completed_at`.
+        type: integer
+      uri:
+        type: ResourceURI
+  ServerTimestamp:
+    description: iso 8601 format
+    type: string
+    (oas-format): timestamp
+    (oas-readOnly): true
+  SexOffenderSearch:
+    type: ScreeningsGenericPayload
+    properties:
+      object:
+        example: sex_offender_search
+        type: string
+      records:
+        description: Array of SexRecord objects.
+        type: array
+        items:
+          type: object
+          properties:
+            age:
+              description: Age listed on the record.
+              example: 44
+              type: integer
+            dob:
+              description: Date of birth listed on the record.
+              example: '1975-02-01'
+              type: date-only
+            full_name:
+              description: Name listed on the record.
+              example: John Alfred Smith
+              type: string
+            registration_end:
+              description: End date for the registration.
+              example: '2012-02-12'
+              type: date-only
+            registration_start:
+              description: Start date for the registration.
+              example: '2011-02-12'
+              type: date-only
+            registry:
+              description: State in which the record was registered.
+              example: California
+              type: string
+            state:
+              description: State listed for the record.
+              example: CA
+              type: string
+      status:
+        type: ScreeningStatus
+        example: consider
+      turnaround_time:
+        example: 90
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/sex_offender_searches/539fd88c101897f7cd000008
+  SsnTrace:
+    type: ScreeningsGenericPayload
+    properties:
+      addresses:
+        description: List of address objects.
+        type: array
+        items:
+          type: Address
+          properties:
+            city:
+              description: Returned city.
+              example: San Francisco
+              type: string
+            from_date:
+              description: Returned start date of residency.
+              example: '2010-05-01'
+              type: string
+            street:
+              description: Returned street address.
+              example: 123 S Folsom St
+              type: string
+            to_date:
+              description: Returned end date of residency.
+              example: '2010-06-01'
+              type: string
+            unit:
+              description: Returned apartment or unit number.
+              example: Apt 54B
+              type: string
+      aliases:
+        description: Array of name objects.
+        type: array
+        items:
+          type: object
+          properties:
+            first_name:
+              description: First name.
+              example: Jack
+              type: string
+            last_name:
+              description: Last name.
+              example: Fieldman
+              type: string
+            middle_name:
+              description: Middle name.
+              example: B
+              type: string
+      data_mismatch:
+        description: >-
+          If true, information returned from the SSN Trace does not match any of
+          the candidate’s provided information.
+        default: false
+        type: boolean
+      death_index:
+        description: >-
+          If true, the input SSN is listed on the Social Security
+          Administration's “Death Master File”.
+        default: false
+        type: boolean
+      dob_mismatch:
+        description: >-
+          If true, the name on the SSN Trace matches the candidate's provided
+          information, but the DOB does not.
+        default: false
+        type: boolean
+      invalid_issuance_year:
+        description: >-
+          If true, the input SSN has a year of issuance that precedes the
+          candidate's reported year of birth.
+        default: false
+        type: boolean
+      issued_state:
+        description: The US state where the ID was issued.
+        example: CA
+        type: string
+      issued_year:
+        description: The year the ID was issued.
+        example: 1993
+        type: integer
+      name_mismatch:
+        description: >-
+          If true, the DOB associated with the addresses returned from the SSN
+          Trace matches the candidate's input DOB, but the name does not.
+        default: false
+        type: boolean
+      no_data:
+        description: No data was returned for the input Candidate PII.
+        default: false
+        type: boolean
+      object:
+        type: string
+        enum:
+          - ssn_trace
+      ssn:
+        description: >-
+          Candidate’s social security number. This value will be redacted in all
+          return calls, except for the last four digits.
+        example: XXX-XX-4645
+        type: string
+      ssn_already_taken:
+        description: 'If true, another Candidate with same SSN already exists in our system.'
+        default: false
+        type: boolean
+      status:
+        type: ScreeningStatus
+        example: clear
+      thin_file:
+        description: No information found.
+        default: false
+        type: boolean
+      turnaround_time:
+        example: 90
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/ssn_traces/539fd88c101897f7cd000001
+  StateCriminalSearch:
+    type: ScreeningsGenericPayload
+    properties:
+      completed_at:
+        example: '2014-01-18T12:35:30Z'
+        type: datetime
+      created_at:
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      estimated_completion_time:
+        description: >-
+          Estimated time of completion for the Screening. This estimate will be
+          based on the maximum turnaround time across all states searched.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      filtered_by_positive_adjudication_records:
+        description: >-
+          Array of CriminalRecord objects filtered out by your account’s
+          Positive Adjudication Matrix.
+        type: array
+        items:
+          type: Record
+      object:
+        type: string
+        enum:
+          - state_criminal_search
+      records:
+        description: Array of CriminalRecord objects.
+        type: array
+        items:
+          type: Record
+          properties:
+            arresting_agency:
+              example: San Francisco Police Department
+              type: string
+            charges:
+              type: array
+              items:
+                type: Charge
+                properties:
+                  arrest_date:
+                    example: '2011-04-22'
+                  charge:
+                    example: Sell Cocaine
+                    type: string
+                  defendant:
+                    example: John Alfred Smith
+                  sentence_date:
+                    example: '2011-06-02'
+            court_jurisdiction:
+              example: San Francisco
+            file_date:
+              example: '2010-02-18'
+      state:
+        description: State searched for these records.
+        example: CA
+        type: string
+      status:
+        type: ScreeningStatus
+        example: consider
+      turnaround_time:
+        example: 100800
+        type: integer
+      uri:
+        type: ResourceURI
+        example: /v1/state_criminal_searches/539fdcf335644a0ef4000001
+  SubCheck:
+    type: object
+    properties:
+      name:
+        type: string
+      status:
+        type: string
+        enum:
+          - clear
+          - consider
+  Subscription:
+    type: object
+    properties:
+      canceled_at:
+        description: Time at which the Subscription was canceled.
+      candidate_id:
+        description: ID of the candidate screened.
+        example: e44aa283528e6fde7d542194
+        type: string
+      created_at:
+        description: Time at which the Subscription was created.
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      id:
+        type: ResourceId
+      interval_count:
+        description: The number of intervals between each recurrent background check.
+        example: 1
+        type: integer
+      interval_unit:
+        description: Interval at which the Subscription will repeat.
+        example: month
+        type: string
+        enum:
+          - day
+          - week
+          - month
+          - year
+      object:
+        type: string
+        enum:
+          - subscription
+        (oas-readOnly): true
+      package:
+        description: Package to run for the Subscription.
+        example: driver_pro
+        type: string
+      start_date:
+        description: >-
+          Start date for the Subscription. This is the date on which the
+          Subscription will begin, and the first time the report will be run.
+        example: '2014-06-10'
+        type: date-only
+      status:
+        description: Status of the Subscription.
+        example: active
+        type: string
+        enum:
+          - active
+          - inactive
+      uri:
+        type: ResourceURI
+        description: URI of the Subscription.
+        example: /v1/subscriptions/4722c07dd9a10c3985ae432a
+  UnauthorizedError:
+    type: object
+    properties:
+      error:
+        example: Bad authentication error
+        type: string
+  UsedGeoError:
+    type: object
+    properties:
+      error:
+        example: Geo can not be deleted as it is used by Candidates
+        type: string
+  Verification:
+    type: object
+    properties:
+      completed_at:
+        description: >-
+          Value will be null if the candidate has not uploaded the required
+          documents, otherwise will contain the date and time that the documents
+          were provided.
+      created_at:
+        example: '2014-01-18T12:34:00Z'
+        type: datetime
+      id:
+        type: ResourceId
+      object:
+        type: string
+        enum:
+          - verification
+        (oas-readOnly): true
+      processed_at:
+        description: >-
+          Value will be null if the candidate has not uploaded the required
+          documents, otherwise will contain the date and time that the documents
+          were processed.
+      report_id:
+        description: Value include the report_id
+        example: 4722c07dd9a10c3985ae432a
+        type: string
+      uri:
+        type: ResourceURI
+        example: /v1/verifications/db313e73383710d4fa2f18fd
+      verification_type:
+        example: id
+        type: string
+        enum:
+          - id
+          - education
+      verification_url:
+        description: URL to direct the candidate to upload documents.
+        example: 'http://verifications.checkr.com/db313e73383710d4fa2f18fd'
+        type: string
+/account:
+  get:
+    description: |
+      Returns Account details for the authenticated account.
+    displayName: account
+    responses:
+      '200':
+        description: Account details
+        body:
+          application/json:
+            type: Account
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve authenticated account details
+    (oas-tags):
+      - Account
+    (code-samples):
+      'null':
+        lang: curl
+        source: |-
+          $ curl -X GET https://api.checkr.com/v1/account \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+/accounts:
+  post:
+    description: >
+      Creates a customer Account associated with your [Partner
+      Application](#section/Checkr-Partners).
+
+      Only Checkr Partners are authorized to use this endpoint.
+    displayName: createAccount
+    responses:
+      '200':
+        description: Account details
+        body:
+          application/json:
+            type: Account
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    body:
+      application/json:
+        type: object
+        properties:
+          client_id:
+            description: Client credentials provided as part of your Partner Application.
+            example: 56269e3411a549fd07ed8d92
+            type: string
+          company:
+            type: object
+            properties:
+              city:
+                description: City where company is headquartered.
+                example: San Francisco
+                type: string
+              dba_name:
+                description: >-
+                  Name of Company displayed in Checkr emails and branded web
+                  pages.
+                example: Acme
+              incorporation_state:
+                description: |
+                  State where company is incorporated. Format: `ISO 3166-2:US`.
+                example: CA
+              incorporation_type:
+                description: Type of incorporation.
+                type: string
+                enum:
+                  - association
+                  - co-ownership
+                  - corporation
+                  - joint-venture
+                  - limited-partnership
+                  - llc
+                  - llp
+                  - non-profit
+                  - partnership
+                  - s-corporation
+                  - sp
+                  - trusteeship
+              industry:
+                description: |
+                  Industry that company operates in. Format: `NAICS 2017 Code`.
+                example: 72
+              phone:
+                description: Company phone number.
+                example: 206-555-0100
+              state:
+                description: |
+                  State where company is headquartered. Format: `ISO 3166-2:US`.
+                example: CA
+                type: string
+              street:
+                description: Street address where company is headquartered.
+                example: 123 Main Street
+                type: string
+              tax_id:
+                description: Company Tax ID number.
+                example: '123456789'
+                type: string
+              website:
+                description: Company website.
+                example: 'https://www.example.com'
+              zipcode:
+                description: Zipcode where company is headquartered.
+                example: '94107'
+                type: string
+          default_compliance_city:
+            description: |
+              Fallback compliance city if candidate location is not provided.
+            example: San Francisco
+            required: false
+          default_compliance_state:
+            description: >
+              Fallback compliance state if candidate location is not provided.
+              Format: `ISO 3166-2:US`.
+            example: CA
+            required: false
+          name:
+            description: Name of Account displayed in the Dashboard.
+            example: Acme Corporation
+            type: string
+          oauth_authorize:
+            description: Allows skipping of the /oauth/authorize call
+            default: false
+            type: boolean
+            required: false
+          purpose:
+            description: >
+              Permissible purpose to run background checks. Determines which
+              background checks the Account is credentialed for.
+            example: employment
+            type: string
+            enum:
+              - employment
+              - business
+              - insurance
+              - tenant
+          user:
+            type: object
+            properties:
+              email:
+                description: Email of the initial Admin user for the Account.
+                example: user@example.com
+                type: string
+              full_name:
+                description: Full name of the initial Admin user for the Account.
+                example: Jeanette Hughes
+                type: string
+        (oas-body-name): body
+    securedBy:
+      - OAuth2
+    (oas-summary): Create a new Account
+    (oas-tags):
+      - Account
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X POST https://api.checkr.com/v1/accounts \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d client_id=56269e3411a549fd07ed8d92 \
+              -d name=Acme+Corporation \
+              -d default_compliance_state=CA \
+              -d purpose=employment \
+              -d user[full_name]=Jeanette+Hughes \
+              -d user[email]=user@example.com \
+              -d company[dba_name]=Acme \
+              -d company[industry]=72 \
+              -d company[street]=123+Main+Street \
+              -d company[city]=San Francisco \
+              -d company[state]=CA \
+              -d company[zipcode]=94107 \
+              -d company[tax_id]=123456789 \
+              -d company[incorporation_state]=CA \
+              -d company[incorporation_type]=association \
+              -d company[phone]=206-555-0100 \
+              -d company[website]=https%3A%2F%2Fwww.example.com
+/adverse_actions:
+  get:
+    description: |
+      Returns a list of existing Adverse Actions with the input parameter(s).
+    displayName: listOfAdverseActions
+    responses:
+      '200':
+        description: List of Adverse Actions
+        body:
+          application/json:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: AdverseAction
+              next_href:
+                type: string
+                (oas-format): uri
+              object:
+                description: A list
+                type: string
+                enum:
+                  - list
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    queryParameters:
+      full_name:
+        description: Full name of the Candidate to whom the Adverse Action is applied.
+        type: string
+        required: false
+      status:
+        description: Returns Adverse Actions with the input status.
+        type: string
+        enum:
+          - pending
+          - complete
+          - dispute
+          - canceled
+        required: false
+      created_after:
+        description: Returns Adverse Actions created after this timestamp.
+        type: datetime
+        required: false
+      created_before:
+        description: Returns Adverse Actions created before this timestamp.
+        type: datetime
+        required: false
+    securedBy:
+      - OAuth2
+    (oas-summary): List existing Adverse Actions
+    (oas-tags):
+      - Adverse Actions
+  '/{id}':
+    delete:
+      description: |
+        Cancels an existing Adverse Action.
+      displayName: cancelAdverseAction
+      responses:
+        '200':
+          description: Adverse Action was successfully canceled
+          body:
+            application/json:
+              type: AdverseAction
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Cancel an existing Adverse Action
+      (oas-tags):
+        - Adverse Actions
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X DELETE
+            https://api.checkr.com/v1/adverse_actions/e44aa283528e6fdaa9542194 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    get:
+      description: |
+        Returns an existing Adverse Action with the input ID.
+      displayName: getAdverseAction
+      responses:
+        '200':
+          description: Adverse Action details
+          body:
+            application/json:
+              type: AdverseAction
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Adverse Action
+      (oas-tags):
+        - Adverse Actions
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/adverse_actions/57ed51e57619e8002a6683f2 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    uriParameters:
+      id:
+        description: ID of the Adverse Action.
+        type: string
+/candidates:
+  get:
+    description: |
+      Lists existing Candidates with the input parameters.
+    displayName: listOfCandidates
+    responses:
+      '200':
+        description: List of Candidates
+        body:
+          application/json:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: Candidate
+              next_href:
+                type: string
+                (oas-format): uri
+              object:
+                description: A list
+                type: string
+                enum:
+                  - list
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    queryParameters:
+      email:
+        description: Returns candidates with the input email address.
+        type: string
+        required: false
+      full_name:
+        description: Returns candidates with the input `full_name`.
+        type: string
+        required: false
+      adjudication:
+        description: >-
+          Returns candidates with the input adjudication. `Null` if no
+          adjudication has been made.
+        type: string
+        required: false
+      custom_id:
+        description: Returns candidates with the input `custom_id`.
+        type: string
+        required: false
+      created_after:
+        description: Returns candidates created after the input timestamp.
+        type: datetime
+        required: false
+      created_before:
+        description: Returns candidates created before the input timestamp.
+        type: datetime
+        required: false
+      geo_id:
+        description: Returns candidates with the input `geo_id`.
+        type: string
+        required: false
+      program_id:
+        description: Returns candidates with the input `program_id`.
+        type: string
+        required: false
+    securedBy:
+      - OAuth2
+    (oas-summary): List existing Candidates
+    (oas-tags):
+      - Candidates
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X GET https://api.checkr.com/v1/candidates \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  post:
+    description: >
+      Creates a new Candidate resource.
+
+
+      ### Required attributes
+
+
+      The Candidate resource’s required attributes vary depending on its
+      intended use. If this resource is to be used in conjunction with the
+      Invitations API (in which the invitation apply form collects the
+      Candidate's personal information), the only strictly required Candidate
+      attribute is `email`.
+
+
+      If this resource is to be used to generate any other report type, other
+      personal information is also required.
+
+
+      Attributes required to generate a Report include:
+
+      - `first_name`
+
+      - `middle_name` or `no_middle_name`
+
+      - `last_name`
+
+      - `dob`
+
+
+      Attributes required to generate a Report with a criminal check screening:
+
+      - `ssn`
+
+      - `zipcode`
+
+
+      Attributes required to generate a report with a Motor Vehicle Record (MVR)
+      screening:
+
+      - `driver_license_number`
+
+      - `driver_license_state`
+
+
+      Attributes recommended to generate a report with an Identity Document
+      Verification screening:
+
+      - `phone` (mobile phone number)
+
+
+      Validation for these attributes is performed when requesting a Report, as
+      the requirements depend on the Package.
+
+
+      Checkr's product incorporates SSN field controls designed to not accept
+      SSNs with the following characteristics:
+
+        - SSNs without exactly 9 numeric characters
+        - SSNs that start with 666 (666-34-3768)
+        - SSNs that start with 9 (967-65-4325)
+        - SSNs that are a single digit (111-11-1111)
+        - SSNs that are sequential digits (123-45-6789)
+    displayName: createCandidate
+    responses:
+      '200':
+        description: Candidate was successfully created
+        body:
+          application/json:
+            type: Candidate
+      '400':
+        description: Bad Request
+        body:
+          application/json:
+            type: BadRequestError
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    body:
+      application/json:
+        type: object
+        properties:
+          copy_requested:
+            description: >-
+              If `true`, the candidate has asked to receive a copy of their
+              report.
+            default: false
+            type: boolean
+            required: false
+          dob:
+            description: Candidate’s date of birth.
+            example: '1970-01-22'
+            type: date-only
+            required: false
+          driver_license_number:
+            description: Candidate’s driver license number.
+            example: F211165
+            type: string
+            required: false
+          driver_license_state:
+            description: |
+              Candidate’s driver license state of issue.
+              Format: `ISO 3166-2:US`.
+            example: CA
+            type: string
+            required: false
+          email:
+            description: |
+              Candidate’s email address.
+            example: john.smith@gmail.com
+            type: string
+            (oas-format): email
+          first_name:
+            description: |
+              Candidate’s first name.
+            minLength: 1
+            pattern: '[a-zA-Z0-9 -''.,]*'
+            example: John
+            type: string
+          geo_ids:
+            description: Array of Geo IDs.
+            type: array
+            items:
+              type: string
+            required: false
+          id:
+            type: ResourceId
+            required: false
+          last_name:
+            description: Candidate’s last name.
+            minLength: 1
+            pattern: '[a-zA-Z0-9 -''.,]*'
+            example: Smith
+            type: string
+          middle_name:
+            description: >
+              Candidate’s middle name. This field is required if
+              `no_middle_name` is `false`.
+            pattern: '[a-zA-Z0-9 -''.,]*'
+            example: Alfred
+            type: string
+            required: false
+          mother_maiden_name:
+            description: |
+              Candidate’s mother’s maiden name.
+            pattern: '[a-zA-Z0-9 -''.,]*'
+            example: Jones
+            type: string
+            required: false
+          no_middle_name:
+            description: >
+              Required if no `middle_name` is provided. `true` if the candidate
+              has no middle name.
+            default: false
+            type: boolean
+            required: false
+          object:
+            type: string
+            enum:
+              - candidate
+            (oas-readOnly): true
+            required: false
+          phone:
+            description: Candidate’s phone number.
+            example: 5555555555
+            required: false
+          previous_driver_license_number:
+            description: Candidate’s previous driver license number.
+            example: F1501739
+            type: string
+            required: false
+          previous_driver_license_state:
+            description: |
+              State that issued the candidate’s previous driver license.
+              Format: `ISO 3166-2:US`.
+            example: MD
+            type: string
+            required: false
+          report_ids:
+            description: Array of Report IDs.
+            type: array
+            items:
+              type: string
+            (oas-readOnly): true
+            required: false
+          ssn:
+            description: >-
+              Candidate’s Social Security Number. This value will be redacted in
+              all return calls, except for the last four digits.
+            example: XXX-XX-4645
+            type: string
+            required: false
+          zipcode:
+            description: Candidate’s 5-digit zip code.
+            example: '90401'
+            type: string
+            required: false
+        (oas-body-name): body
+    securedBy:
+      - OAuth2
+    (oas-summary): Create a new Candidate
+    (oas-tags):
+      - Candidates
+    (code-samples):
+      'null':
+        lang: curl
+        source: |-
+          $ curl -X POST https://api.checkr.com/v1/candidates \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d first_name=John \
+              -d middle_name=Alfred \
+              -d last_name=Smith \
+              -d email=john.smith@gmail.com \
+              -d phone=5555555555 \
+              -d zipcode=90401 \
+              -d dob=1970-01-22 \
+              -d ssn=847-43-4645 \
+              -d driver_license_number=F211165 \
+              -d driver_license_state=CA
+              
+  '/{candidate_id}':
+    /documents:
+      get:
+        description: >
+          Returns an array of candidate-provided Documents for the input
+          `candidate_id`.
+        displayName: getCandidateDocuments
+        responses:
+          '200':
+            description: List of Documents
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 1
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: Document
+                  object:
+                    description: A list
+                    type: string
+                    enum:
+                      - list
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        queryParameters:
+          types:
+            description: >-
+              The type of candidate-provided document to return. If `types` is
+              not included in the call, all available Candidate Documents will
+              be returned.
+            type: array
+            items:
+              type: string
+              enum:
+                - consent
+                - credit_report_consent_form
+                - driver_license
+                - driver_license_back
+                - driver_license_history
+                - education_proof
+                - employment_proof
+                - international_consent_form
+                - passport
+                - previous_driver_license
+                - selfie
+                - ssn_card
+                - state_id_card
+                - state_id_card_back
+            (oas-collectionFormat): multi
+            required: false
+        securedBy:
+          - OAuth2
+        (oas-summary): List a Candidate's Documents
+        (oas-tags):
+          - Documents
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X GET
+              https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/documents/
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+      post:
+        description: Uploads a new Candidate Document.
+        displayName: uploadDocument
+        responses:
+          '200':
+            description: Document was successfully uploaded
+            body:
+              application/json:
+                type: Document
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        body:
+          multipart/form-data:
+            properties:
+              type:
+                type: string
+                enum:
+                  - consent
+                  - driver_license
+                  - previous_driver_license
+                  - state_id_card
+                  - passport
+                  - ssn_card
+                  - selfie
+                  - education_proof
+                  - employment_proof
+              file:
+                description: >
+                  Path to the document on your local file system.
+
+
+                  Valid MIME types: `image/gif`, `image/jpg`, `image/jpeg`,
+                  `image/png`, `image/bmp`, `image/tiff`, `application/pdf`,
+                  `image/heic`.
+                type: string
+                (oas-format): binary
+        securedBy:
+          - OAuth2
+        (oas-summary): Upload a new Candidate Document
+        (oas-tags):
+          - Documents
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X POST
+              https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/documents
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                  --form type=driver_license \
+                  --form file=@candidate_driver_license.jpg
+    uriParameters:
+      candidate_id:
+        description: Upload a document for the input `candidate_id`.
+        type: string
+    /employers:
+      get:
+        description: |
+          Returns a list of existing Employers for the input `candidate_id`.
+        displayName: employersListByCandidate
+        responses:
+          '200':
+            description: List of Employers
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 2
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: Employer
+                  object:
+                    description: A list
+                    type: string
+                    enum:
+                      - list
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): List existing Employers
+        (oas-tags):
+          - Employers
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X GET
+              https://api.checkr.com//v1/candidates/e44aa283528e6fde7d542194/employers
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+      post:
+        description: >
+          Creates a new Employer resource.
+
+
+          If the country is not US, the following parameters will be required in
+          addition to those marked as required in the table below:
+
+
+          - salary
+
+          - address:
+            - street
+            - country
+            - zipcode
+          - manager:
+            - name
+            - title
+
+          Validation for `start_date` and `end_date` is performed to ensure
+          logical dates are provided. `end_date` must be after `start_date`, and
+          both dates must be after 1900-01-01.
+        displayName: createEmployer
+        responses:
+          '200':
+            description: Employer was successfully created
+            body:
+              application/json:
+                type: Employer
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        body:
+          application/json:
+            type: object
+            properties:
+              address:
+                type: Address
+              candidate_id:
+                description: ID of the Candidate being screened.
+                minLength: 1
+                pattern: '[a-zA-Z0-9 -''.,]*'
+                example: xxx
+                type: string
+                required: false
+              contract_type:
+                description: Candidate’s contract type.
+                example: full_time
+                type: string
+                enum:
+                  - full_time
+                  - part_time
+                  - contract
+                  - internship
+              do_not_contact:
+                description: >-
+                  If `true`, the employer will not be contacted about the
+                  Candidate.
+                default: false
+                type: boolean
+                required: false
+              employer_url:
+                description: Employer’s website.
+                example: www.employer.com
+                type: string
+                required: false
+              end_date:
+                description: Candidate’s end date with the employer.
+                example: '2017-05-01'
+                type: date-only
+                required: false
+              id:
+                type: ResourceId
+                required: false
+              manager:
+                type: object
+                properties:
+                  email:
+                    description: Candidate's manager's email address.
+                    example: joesmith@checkr.co
+                    type: string
+                  name:
+                    description: Candidate's manager's name.
+                    example: Joe Smith
+                    type: string
+                  phone:
+                    description: Candidate's manager's phone number.
+                    example: 212-555-1234
+                    type: string
+                  title:
+                    description: Candidate's manager's title.
+                    example: Engineering Manager
+                    type: string
+                required: false
+              name:
+                description: Candidate’s employer’s name.
+                minLength: 1
+                pattern: '[a-zA-Z0-9 -''.,]*'
+                example: Checkr
+                type: string
+              object:
+                type: string
+                enum:
+                  - employer
+                (oas-readOnly): true
+                required: false
+              position:
+                description: Candidate’s position or title.
+                example: Software Engineer
+                type: string
+              salary:
+                description: Candidate’s gross salary in dollars annually.
+                example: 10000
+                type: integer
+                required: false
+              start_date:
+                description: Candidate’s start date with the employer.
+                example: '2016-06-01'
+                type: date-only
+            (oas-body-name): body
+        securedBy:
+          - OAuth2
+        (oas-summary): Create a new Employer
+        (oas-tags):
+          - Employers
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X POST
+              https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/employers
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                  -d name=Checkr \
+                  -d position=Engineer \
+                  -d salary=10000 \
+                  -d address\[street\]=123+Main+St. \
+                  -d address\[city\]=San+Francisco \
+                  -d address\[state\]=CA \
+                  -d address\[zipcode\]=94108 \
+                  -d address\[country\]=US \
+                  -d contract_type=full_time \
+                  -d start_date=2016-01-22 \
+                  -d end_date=2017-01-22 \
+                  -d manager\[name\]=Joe \
+                  -d manager\[title\]=Manager \
+                  -d employer_url=www.employer.com
+      '/{employer_id}':
+        delete:
+          description: |
+            Deletes an existing Employer with the input `id`.
+          displayName: employerDelete
+          responses:
+            '200':
+              description: Employer was successfully deleted
+              body:
+                application/json:
+                  type: Employer
+            '400':
+              description: Bad Request
+              body:
+                application/json:
+                  type: BadRequestError
+            '401':
+              description: Unauthorized
+              body:
+                application/json:
+                  type: UnauthorizedError
+            '403':
+              description: Forbidden
+              body:
+                application/json:
+                  type: ForbiddenError
+          securedBy:
+            - OAuth2
+          (oas-summary): Delete an existing Employer
+          (oas-tags):
+            - Employers
+          (code-samples):
+            'null':
+              lang: curl
+              source: >
+                $ curl -X DELETE
+                https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/employers/95a95172bb81143ed44e403c
+                \
+                    -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+        get:
+          description: >
+            Returns an existing Employer with the input `candidate_id` or
+            `employer_id`.
+          displayName: getEmployer
+          responses:
+            '200':
+              description: Employer details
+              body:
+                application/json:
+                  type: Employer
+            '401':
+              description: Unauthorized
+              body:
+                application/json:
+                  type: UnauthorizedError
+            '403':
+              description: Forbidden
+              body:
+                application/json:
+                  type: ForbiddenError
+          securedBy:
+            - OAuth2
+          (oas-summary): Retrieve an existing Employer
+          (oas-tags):
+            - Employers
+          (code-samples):
+            'null':
+              lang: curl
+              source: >
+                $ curl -X GET
+                https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/employers/ca27df84be5b50dfa7ee1cda
+                \
+                    -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+        uriParameters:
+          employer_id:
+            description: The Employer's ID.
+            type: string
+    /schools:
+      get:
+        description: |
+          Returns a list of existing Schools for the input `candidate_id`.
+        displayName: schoolsListByCandidate
+        responses:
+          '200':
+            description: List of Schools
+            body:
+              application/json:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: School
+                  next_href:
+                    type: string
+                    (oas-format): uri
+                  object:
+                    description: A list
+                    type: string
+                    enum:
+                      - list
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): List existing Schools
+        (oas-tags):
+          - Schools
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X GET
+              https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/schools/fe8b5a63af2799aba7fdf64d
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+      post:
+        description: >
+          Creates a new School resource.
+
+
+          Validation for `start_date` and `end_date` is performed to ensure
+          logical dates are provided. `end_date` must be after `start_date`, and
+          both dates must be after 1900-01-01.
+
+
+          If the country is not US, the following parameters are required in
+          addition to those marked as required below:
+
+
+          - year_awarded
+
+          - phone
+
+          - minor
+
+          - start_date
+
+          - end_date
+
+          - current
+
+          - address
+            - street
+            - city
+            - zipcode
+            - state
+            - country
+        displayName: createSchoolForCandidate
+        responses:
+          '200':
+            description: School was successfully created
+            body:
+              application/json:
+                type: School
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        body:
+          application/json:
+            type: object
+            properties:
+              address:
+                type: Address
+                required: false
+              candidate_id:
+                description: Candidate linked to this School resource.
+                minLength: 1
+                pattern: '[a-zA-Z0-9 -''.,]*'
+                example: 83ebeagdec0948690863766f792ead24d61fe3f9
+                type: string
+                required: false
+              current:
+                description: Defines whether the Candidate is currently enrolled.
+                default: false
+                type: boolean
+                required: false
+              degree:
+                description: Degree awarded to the Candidate.
+                example: BA
+                type: string
+              end_date:
+                description: Candidate’s end date with the School.
+                example: '2017-05-10'
+                type: date-only
+                required: false
+              id:
+                type: ResourceId
+                required: false
+              major:
+                description: Candidate’s major.
+                pattern: '[a-zA-Z0-9 -''.,]*'
+                example: Russian Literature
+                type: string
+              minor:
+                description: Candidate’s minor.
+                example: Background Checks
+                type: string
+                required: false
+              name:
+                description: Name of the School.
+                minLength: 1
+                pattern: '[a-zA-Z0-9 -''.,]*'
+                example: College University
+                type: string
+              object:
+                type: string
+                enum:
+                  - school
+                (oas-readOnly): true
+                required: false
+              phone:
+                description: School's phone number.
+                example: 415-111-1111
+                required: false
+              school_url:
+                description: School’s website.
+                example: www.collegeuniversity.com
+                type: string
+                required: false
+              start_date:
+                description: Candidate’s start date with the School.
+                example: '2012-09-22'
+                type: date-only
+                required: false
+              year_awarded:
+                description: Year in which the degree was awarded.
+                example: 2017
+                type: integer
+                required: false
+            (oas-body-name): body
+        securedBy:
+          - OAuth2
+        (oas-summary): Create a new School
+        (oas-tags):
+          - Schools
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X POST
+              https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/schools
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                  -d name=College\ University \
+                  -d address\[street\]=1+Circle+Avenue \
+                  -d address\[city\]=San+Francisco \
+                  -d address\[zipcode\]=94105 \
+                  -d address\[state\]=CA \
+                  -d address\[country\]=US \
+                  -d degree=BS \
+                  -d year_awarded=2017 \
+                  -d major=Computer+Science \
+                  -d phone=111-111-1111 \
+                  -d minor=Background+Checks \
+                  -d start_date=2012-09-25 \
+                  -d end_date=2017-05-29 \
+                  -d current=false \
+                  -d school_url=www.school.com
+      '/{id}':
+        delete:
+          description: |
+            Deletes an existing School with the input `school_id`.
+          displayName: schoolDelete
+          responses:
+            '200':
+              description: School was successfully deleted
+              body:
+                application/json:
+                  type: School
+            '400':
+              description: Bad Request
+              body:
+                application/json:
+                  type: BadRequestError
+            '401':
+              description: Unauthorized
+              body:
+                application/json:
+                  type: UnauthorizedError
+            '403':
+              description: Forbidden
+              body:
+                application/json:
+                  type: ForbiddenError
+          securedBy:
+            - OAuth2
+          (oas-summary): Delete an existing School
+          (oas-tags):
+            - Schools
+          (code-samples):
+            'null':
+              lang: curl
+              source: >
+                $ curl -X DELETE
+                https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/schools/95a95172bb81143ed44e403c
+                \
+                    -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+        get:
+          description: |
+            Returns an existing School with the input `school_id`.
+          displayName: getSchool
+          responses:
+            '200':
+              description: School details
+              body:
+                application/json:
+                  type: School
+            '401':
+              description: Unauthorized
+              body:
+                application/json:
+                  type: UnauthorizedError
+            '403':
+              description: Forbidden
+              body:
+                application/json:
+                  type: ForbiddenError
+          securedBy:
+            - OAuth2
+          (oas-summary): Retrieve an existing School
+          (oas-tags):
+            - Schools
+          (code-samples):
+            'null':
+              lang: curl
+              source: >
+                $ curl -X GET
+                https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194/schools/fe8b5a63af2799aba7fdf64d
+                \
+                    -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+        uriParameters:
+          id:
+            description: The School's ID.
+            type: string
+  '/{id}':
+    get:
+      description: |
+        Retrieves an existing Candidate.
+      displayName: getCandidate
+      responses:
+        '200':
+          description: Candidate details
+          body:
+            application/json:
+              type: Candidate
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Candidate
+      (oas-tags):
+        - Candidates
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    post:
+      description: >
+        Updates an existing Candidate.
+
+
+        Attempts to update a field that cannot be updated will return a 400
+        error stating "... cannot be updated”. For example, attempting to update
+        an SSN will return 400 stating "Candidate SSN can not be updated because
+        it has reports”. 
+
+
+        Updating `geo_ids` will **replace** all existing Geos. To keep existing
+        geos, include their IDs in the update request. 
+
+
+        Only fields with `null` values can be updated after a Report has been
+        ordered for a Candidate with the exception of the following fields:
+
+        - email
+
+        - previous_driver_license_number
+
+        - previous_driver_license_state
+
+        - copy_requested
+
+        - custom_id
+
+        - geo_ids
+      displayName: updateCandidate
+      responses:
+        '200':
+          description: Candidate was successfully updated
+          body:
+            application/json:
+              type: Candidate
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      body:
+        application/json:
+          type: Candidate
+          (oas-body-name): body
+      securedBy:
+        - OAuth2
+      (oas-summary): Update an existing Candidate
+      (oas-tags):
+        - Candidates
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X POST
+            https://api.checkr.com/v1/candidates/e44aa283528e6fde7d542194 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                -d first_name=John \
+                -d middle_name=Alfred \
+                -d last_name=Smith \
+                -d email=john.smith@gmail.com \
+                -d phone=5555555555 \
+                -d zipcode=90401 \
+                -d dob=1970-01-22 \
+                -d ssn=543-43-4645 \
+                -d 'geo_ids[]=87f5bb4983eade22c55f4731&geo_ids[]=22b20140fc1adfae693ca35c'
+    uriParameters:
+      id:
+        description: The Candidate's ID.
+        type: string
+    /pii:
+      delete:
+        description: >
+          Requests the removal of PII from an existing Candidate
+
+
+          Requesting the removal of PII from a candidate who has already had PII
+          removed will result in an error.
+        displayName: deleteCandidate
+        responses:
+          '200':
+            description: Candidate details
+            body:
+              application/json:
+                type: Candidate
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadPiiRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): Request PII removal for a Candidate
+        (oas-tags):
+          - Candidates
+  uriParameters:
+    id:
+      description: The Candidate's ID.
+      type: string
+/geos:
+  get:
+    description: |
+      Returns a list of existing Geos with the input `name` or `state`.
+    displayName: geosList
+    responses:
+      '200':
+        description: List of Geos
+        body:
+          application/json:
+            type: object
+            properties:
+              count:
+                example: 1
+                type: integer
+              data:
+                type: array
+                items:
+                  type: Geo
+              next_href:
+                type: string
+                (oas-format): uri
+              object:
+                description: A list
+                type: string
+                enum:
+                  - list
+              previous_href:
+                type: string
+                (oas-format): uri
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    queryParameters:
+      name:
+        description: Returns all Geos with the input `name`.
+        type: string
+        required: false
+      state:
+        description: Returns all Geos with the input state.
+        type: string
+        required: false
+    securedBy:
+      - OAuth2
+    (oas-summary): List existing Geos
+    (oas-tags):
+      - Geos
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X GET https://api.checkr.com/v1/geos \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  post:
+    description: >
+      Creates a new Geo resource.
+
+
+      **Note**: Attempting to create a new Geo with the same name/state
+      combination will result in an
+
+      409 error
+    displayName: createGeo
+    responses:
+      '201':
+        description: Geo was successfully created
+        body:
+          application/json:
+            type: Geo
+      '400':
+        description: Bad Request
+        body:
+          application/json:
+            type: BadRequestError
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+      '409':
+        description: Duplicate geo
+        body:
+          application/json:
+            type: DuplicateGeoError
+    body:
+      application/json:
+        type: object
+        properties:
+          city:
+            description: A major city within the input state.
+            example: San Francisco
+            type: string
+            required: false
+          name:
+            description: Human-readable name of the Geo.
+            example: San Francisco
+            type: string
+          state:
+            description: US state for the Geo.
+            example: CA
+            type: string
+        (oas-body-name): body
+    securedBy:
+      - OAuth2
+    (oas-summary): Create a new Geo
+    (oas-tags):
+      - Geos
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X POST https://api.checkr.com/v1/geos \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d name=San+Francisco \
+              -d city=San+Francisco \
+              -d state=CA
+  '/{id}':
+    delete:
+      description: |
+        Deletes an existing Geo.
+      displayName: deleteGeo
+      responses:
+        '204':
+          description: Geo was successfully deleted
+          body:
+            application/json:
+              type: Geo
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+        '409':
+          description: Geo used
+          body:
+            application/json:
+              type: UsedGeoError
+      securedBy:
+        - OAuth2
+      (oas-summary): Delete an existing Geo
+      (oas-tags):
+        - Geos
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X DELETE
+            https://api.checkr.com/v1/geos/b719804dc15c655f8529a2f2 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    get:
+      description: |
+        Returns an existing Geo with the input ID.
+      displayName: getGeo
+      responses:
+        '200':
+          description: Geo details
+          body:
+            application/json:
+              type: Geo
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Geo
+      (oas-tags):
+        - Geos
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/geos/e44aa283528e6fde7d542194 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    post:
+      description: |
+        Updates an existing Geo resource with the input `city`.
+        `city` can only be added once.
+      displayName: updateGeo
+      responses:
+        '200':
+          description: Geo was successfully updated
+          body:
+            application/json:
+              type: Geo
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+        '409':
+          description: Geo city updated
+          body:
+            application/json:
+              type: GeoCityUpdatedError
+      body:
+        application/json:
+          type: object
+          properties:
+            city:
+              description: Updates the Geo with the input city.
+              example: San Francisco
+          (oas-body-name): body
+      securedBy:
+        - OAuth2
+      (oas-summary): Update an existing Geo
+      (oas-tags):
+        - Geos
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X POST
+            https://api.checkr.com/v1/geos/b719804dc15c655f8529a2f2 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                -d city=San+Francisco
+    uriParameters:
+      id:
+        description: ID of the Geo.
+        type: string
+/invitations:
+  get:
+    description: >
+      Returns a list of existing Invitations with the input `status` or
+      `candidate_id`.
+
+
+      * If no parameters are passed, returns all Invitations.
+
+
+      * If `candidate_id` or `status` is passed, returns Invitations that match
+      the input parameter.
+
+
+      * If both `candidate_id` and `status` are passed, return Invitations that
+      match both parameters.
+
+
+      Returns 400 if the (optional) `status` parameter is not `pending`,
+      `expired`, or `completed`.
+    displayName: listOfInvitations
+    responses:
+      '200':
+        description: List of Invitations
+        body:
+          application/json:
+            type: object
+            properties:
+              count:
+                example: 2
+                type: integer
+              data:
+                type: array
+                items:
+                  type: Invitation
+              object:
+                description: A list
+                type: string
+                enum:
+                  - list
+      '400':
+        description: Bad Request
+        body:
+          application/json:
+            type: BadRequestError
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    queryParameters:
+      candidate_id:
+        description: ID of the candidate to whom the invitation was issued.
+        type: string
+        required: false
+      status:
+        description: Status of the Invitation.
+        type: string
+        enum:
+          - pending
+          - completed
+          - expired
+        required: false
+    securedBy:
+      - OAuth2
+    (oas-summary): List existing Invitations
+    (oas-tags):
+      - Invitations
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X GET https://api.checkr.com/v1/invitations \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d status=pending
+  post:
+    description: |
+      Creates a new Invitation resource.
+    displayName: createInvitation
+    responses:
+      '200':
+        description: Invitation was successfully created
+        body:
+          application/json:
+            type: Invitation
+      '400':
+        description: Bad Request
+        body:
+          application/json:
+            type: BadRequestError
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    body:
+      application/json:
+        type: object
+        properties:
+          candidate_id:
+            description: ID of the Candidate for whom the Invitation is created.
+            example: 551564b7865af96a28b13f36
+            type: string
+          package:
+            description: Values dependent on your Account settings.
+            example: driver_pro
+            type: string
+        (oas-body-name): body
+    securedBy:
+      - OAuth2
+    (oas-summary): Create a new Invitation
+    (oas-tags):
+      - Invitations
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X POST https://api.checkr.com/v1/invitations \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d candidate_id=e44aa283528e6fde7d542194 \
+              -d package=driver_pro
+  '/{id}':
+    delete:
+      description: |
+        Cancels an existing Invitation.
+      displayName: cancelInvitation
+      responses:
+        '200':
+          description: Invitation was successfully canceled
+          body:
+            application/json:
+              type: Invitation
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Cancel an existing Invitation
+      (oas-tags):
+        - Invitations
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X DELETE
+            https://api.checkr.com/v1/invitations/4722c07dd9a10c3985ae432a \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9
+    get:
+      description: |
+        Returns an existing Invitation with the input ID.
+      displayName: getInvitation
+      responses:
+        '200':
+          description: Invitation details
+          body:
+            application/json:
+              type: Invitation
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Invitation
+      (oas-tags):
+        - Invitations
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/invitations/3c0a0ca94caaab6ca9634f76 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    uriParameters:
+      id:
+        description: The Invitation's ID.
+        type: string
+/packages:
+  get:
+    description: |
+      Returns a list of all existing Packages.
+    displayName: packagesList
+    responses:
+      '200':
+        description: List of Packages
+        body:
+          application/json:
+            type: object
+            properties:
+              count:
+                example: 2
+                type: integer
+              data:
+                type: array
+                items:
+                  type: Package
+              next_href:
+                type: string
+                (oas-format): uri
+              object:
+                description: A list
+                type: string
+                enum:
+                  - list
+              previous_href:
+                type: string
+                (oas-format): uri
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): List existing Packages
+    (oas-tags):
+      - Packages
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X GET https://api.checkr.com/v1/packages \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  '/{id}':
+    delete:
+      description: |
+        Deletes an existing Package.
+      displayName: deletePackage
+      responses:
+        '200':
+          description: Package was successfully deleted
+          body:
+            application/json:
+              type: Package
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Delete an existing Package
+      (oas-tags):
+        - Packages
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X DELETE
+            https://api.checkr.com/v1/packages/e44aa283528e6fde7d542194 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    get:
+      description: |
+        Returns an existing Package with the input ID.
+      displayName: getPackage
+      responses:
+        '200':
+          description: Package details
+          body:
+            application/json:
+              type: Package
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Package
+      (oas-tags):
+        - Packages
+      (code-samples):
+        'null':
+          lang: curl
+          source: |
+            $ curl -X GET https://api.checkr.com/v1/packages \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    uriParameters:
+      id:
+        description: ID of the Package to retrieve.
+        type: string
+/programs:
+  get:
+    description: |
+      Returns a list of existing Programs with the input `name`.
+    displayName: programsList
+    responses:
+      '200':
+        description: List of Programs
+        body:
+          application/json:
+            type: object
+            properties:
+              count:
+                example: 1
+                type: integer
+              data:
+                type: array
+                items:
+                  type: Program
+              object:
+                description: A list
+                type: string
+                enum:
+                  - list
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    queryParameters:
+      name:
+        description: Returns Programs with the input `name`.
+        type: string
+        required: false
+    securedBy:
+      - OAuth2
+    (oas-summary): List existing Programs
+    (oas-tags):
+      - Programs
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X GET https://api.checkr.com/v1/programs \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  '/{id}':
+    get:
+      description: |
+        Returns an existing Program with the input ID.
+      displayName: getProgram
+      responses:
+        '200':
+          description: Program details
+          body:
+            application/json:
+              type: Program
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Program
+      (oas-tags):
+        - Programs
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/programs/e44aa283528e6fde7d542194 \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    uriParameters:
+      id:
+        description: ID of the Program to retrieve.
+        type: string
+/reports:
+  post:
+    description: >
+      Creates a new Report resource.
+
+
+      <b>Note: </b>Credit Checks require a complete Candidate address, and may
+      not be
+
+      initiated using the `/reports` API. Please use the [`/invitations`
+      API](#tag/invitations) to initiate the Checkr Hosted
+
+      Invitation Flow to order Credit Checks for your Candidates.
+    displayName: createReport
+    responses:
+      '200':
+        description: Report was successfully created
+        body:
+          application/json:
+            type: Report
+      '400':
+        description: Bad Request
+        body:
+          application/json:
+            type: BadRequestError
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    body:
+      application/json:
+        type: object
+        properties:
+          candidate_id:
+            description: Id of the Candidate screened.
+            example: e44aa283528e6fde7d542194
+            type: string
+          package:
+            description: |
+              Name of the Package.
+            example: driver_pro
+            type: string
+        (oas-body-name): body
+    securedBy:
+      - OAuth2
+    (oas-summary): Create a new Report
+    (oas-tags):
+      - Reports
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X POST https://api.checkr.com/v1/reports \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d package=driver_pro \
+              -d candidate_id=e44aa283528e6fde7d542194
+  '/{id}':
+    get:
+      description: |
+        Returns an existing Report with the input ID.
+      displayName: getReport
+      responses:
+        '200':
+          description: Report details
+          body:
+            application/json:
+              type: Report
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      queryParameters:
+        include:
+          description: >-
+            Comma delimitated string indicating how to populate the returned
+            Report object. See [Embedding
+            Resources](#section/Reference/Embedding-Resources).
+          type: string
+          enum:
+            - candidate
+            - county_civil_searches
+            - county_criminal_searches
+            - municipal_criminal_searches
+            - documents
+            - dispute_comments
+            - public_comments
+            - drug_screening
+            - education_verification
+            - employment_verification
+            - eviction_search
+            - federal_civil_search
+            - federal_criminal_search
+            - geos
+            - global_watchlist_search
+            - international_criminal_searches
+            - national_criminal_search
+            - personal_reference_verifications
+            - professional_reference_verifications
+            - sex_offender_search
+            - ssn_trace
+            - state_criminal_searches
+            - pointer_state_criminal_searches
+            - terrorist_watchlist_search
+            - credit_report
+            - program
+            - facis_search
+            - photo_verification
+            - arrest_search
+            - motor_vehicle_report
+            - self_disclosures
+            - identity_document_verification
+          (example): null
+          required: false
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Report
+      (oas-tags):
+        - Reports
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a?include=drug_screening
+            \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    post:
+      description: >
+        Updates the Package or adjudication for an existing Report resource.
+
+
+        Reports which include the Candidate's Social Security Number may be
+        updated using this endpoint. To update a Report which does not include
+        an SSN, first use the [update Candidate](#operation/updateCandidate)
+        request to add the candidate’s SSN before updating the report. Attempts
+        to update a report that is missing an SSN will result in a 400 error
+        “Candidate must have SSN to upgrade report.”
+
+
+        Either `package` or `adjudication` is required.
+
+
+        <div class="alert alert-info">
+
+          **Note**: The Package of a Report cannot be updated if it has an Adverse Action with the status: `complete` or `dispute`. To proceed, cancel the Adverse Action or create a new Report.
+
+        </div>
+      displayName: updateReport
+      responses:
+        '200':
+          description: Report was successfully updated
+          body:
+            application/json:
+              type: Report
+        '400':
+          description: Pre-existing Adverse Action
+          body:
+            application/json:
+              type: PreExistingAdverseActionError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      body:
+        application/json:
+          type: object
+          properties:
+            adjudication:
+              example: engaged
+              type: string
+              enum:
+                - engaged
+                - pre_adverse_action
+                - post_adverse_action
+            package:
+              description: |
+                Short name of the Package.
+              example: driver_pro
+              type: string
+          (oas-body-name): body
+      securedBy:
+        - OAuth2
+      (oas-summary): Update an existing Report
+      (oas-tags):
+        - Reports
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X POST
+            https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                -d package=driver_pro
+    uriParameters:
+      id:
+        description: The Report's ID.
+        type: string
+    /eta:
+      get:
+        description: |
+          Returns an existing Report ETA for the input Report ID.
+        displayName: requestReportETA
+        responses:
+          '200':
+            description: Report ETA
+            body:
+              application/json:
+                type: ReportETA
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+          '404':
+            description: Unavailable
+            body:
+              application/json:
+                type: PredictionUnavailable
+        securedBy:
+          - OAuth2
+        (oas-summary): Retrieve a Report's ETA
+        (oas-tags):
+          - Report ETA
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              curl -X GET
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/eta \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    /tags:
+      delete:
+        description: |
+          This request is used to delete a tag from a Report.
+        displayName: deleteTagFromReport
+        responses:
+          '200':
+            description: Report tags were successfully deleted
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 1
+                    type: number
+                    (oas-format): integer
+                  data:
+                    example:
+                      - name: To Review
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                  object:
+                    example: list
+                    type: string
+                    enum:
+                      - list
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): Delete a tag from a Report
+        (oas-tags):
+          - Report Tags
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              curl -X DELETE
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/tags \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                  -d tag=West+Coast
+      get:
+        description: |
+          Retrieves tags for the input Report.
+        displayName: getTagsForReport
+        responses:
+          '200':
+            description: List of report tags.
+            body:
+              application/json:
+                type: ReportTags
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): Retrieve tags for a Report
+        (oas-tags):
+          - Report Tags
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              curl -X GET
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/tags \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+      post:
+        description: >
+          This request is used to add a tag to a Report.
+
+          <p><b>Note: </b>The <code>tag</code> value passed to <code>POST
+          /v1/reports/{id}/tags</code> will match the <code>name</code> field in
+          the response.</p>
+        displayName: addTagToReport
+        responses:
+          '200':
+            description: Report tag was successfully created
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 3
+                    type: number
+                    (oas-format): integer
+                  data:
+                    example:
+                      - name: EIN-234234234
+                      - name: api-generated
+                      - name: In Progress
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                  object:
+                    example: list
+                    type: string
+                    enum:
+                      - list
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        body:
+          application/json:
+            type: object
+            properties:
+              tag:
+                example: To Review
+                type: string
+            (oas-body-name): body
+        securedBy:
+          - OAuth2
+        (oas-summary): Add a tag to a Report
+        (oas-tags):
+          - Report Tags
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              curl -X POST
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/tags \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                  -d tag=In+Progress
+      put:
+        description: |
+          This request is used to define all tags for a Report.
+        displayName: updateTagsForReport
+        responses:
+          '200':
+            description: Report tags were successfully updated
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 2
+                    type: number
+                    (oas-format): integer
+                  data:
+                    example:
+                      - name: West Coast
+                      - name: To Review
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                  object:
+                    example: list
+                    type: string
+                    enum:
+                      - list
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        body:
+          application/json:
+            type: object
+            properties:
+              tags:
+                type: array
+                items:
+                  type: string
+            (oas-body-name): body
+        securedBy:
+          - OAuth2
+        (oas-summary): Update tags for a Report
+        (oas-tags):
+          - Report Tags
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              curl -X PUT
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/tags \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                  -d tags[]=West+Coast \
+                  -d tags[]=To+Review
+  '/{report_id}':
+    /addresses:
+      get:
+        description: This request is used to retrieve addresses for a given Report.
+        displayName: addressesListByReport
+        responses:
+          '200':
+            description: List of Report addresses
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 1
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: ReportAddresses
+                  object:
+                    description: A list
+                    type: string
+                    enum:
+                      - list
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): List existing Report addresses
+        (oas-tags):
+          - Report Addresses
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X GET
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/addresses
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    uriParameters:
+      report_id:
+        description: Returns the list of Report addresses for the input `report_id`.
+        type: string
+    /adverse_items:
+      get:
+        description: >
+          Returns a list of existing Adverse Items with the input `report_id`.
+
+
+          <b>Note: </b>Report must be in a `consider` status and cannot have any
+          existing Adverse Actions that have not been canceled.
+
+
+          Returns 400 if the Report's status is not Consider or the Report
+          already has an active (non-cancelled) Adverse Action.
+        displayName: adverseItemsByReport
+        responses:
+          '200':
+            description: List of Adverse Items
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 1
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: AdverseItem
+                  object:
+                    description: A list
+                    type: string
+                    enum:
+                      - list
+          '400':
+            description: Bad Request
+            body:
+              application/json:
+                type: BadRequestError
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): List existing Adverse Items
+        (oas-tags):
+          - Adverse Items
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X GET
+              https://api.checkr.com/v1/reports/b861a56db1b1b89692dd6118/adverse_items
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    /verifications:
+      get:
+        description: |
+          Returns a list of existing Verifications for the input `report_id`.
+        displayName: verificationsListByReport
+        responses:
+          '200':
+            description: List of Report Verifications
+            body:
+              application/json:
+                type: object
+                properties:
+                  count:
+                    example: 2
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: Verification
+                  object:
+                    description: A list
+                    type: string
+                    enum:
+                      - list
+          '401':
+            description: Unauthorized
+            body:
+              application/json:
+                type: UnauthorizedError
+          '403':
+            description: Forbidden
+            body:
+              application/json:
+                type: ForbiddenError
+        securedBy:
+          - OAuth2
+        (oas-summary): List existing Verifications
+        (oas-tags):
+          - Verifications
+        (code-samples):
+          'null':
+            lang: curl
+            source: >
+              $ curl -X GET
+              https://api.checkr.com/v1/reports/4722c07dd9a10c3985ae432a/verifications
+              \
+                  -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+/subscriptions:
+  post:
+    description: |
+      Creates a new Subscription.
+    displayName: createSubscription
+    responses:
+      '200':
+        description: Subscription was successfully created
+        body:
+          application/json:
+            type: Subscription
+      '400':
+        description: Bad Request
+        body:
+          application/json:
+            type: BadRequestError
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    body:
+      application/json:
+        type: object
+        properties:
+          candidate_id:
+            description: ID of the candidate being screened.
+            type: string
+          interval_count:
+            description: The number of intervals between each recurrent background check.
+            type: integer
+            required: false
+          interval_unit:
+            description: Interval at which the subscription will repeat.
+            type: string
+            enum:
+              - day
+              - week
+              - month
+              - year
+            required: false
+          package:
+            description: Package to run for the Report.
+            type: string
+          start_date:
+            description: >-
+              Start date for the subscription. This is the date on which the
+              subscription will begin, and the first time the report will be
+              run.
+            type: date-only
+        (oas-body-name): body
+    securedBy:
+      - OAuth2
+    (oas-summary): Create a new Subscription
+    (oas-tags):
+      - Subscriptions
+    (code-samples):
+      'null':
+        lang: curl
+        source: |
+          $ curl -X POST https://api.checkr.com/v1/subscriptions \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+              -d package=driver_pro \
+              -d start_date=2017-02-10 \
+              -d interval_unit=month \
+              -d interval_count=1 \
+              -d candidate_id=e44aa283528e6fde7d542194
+  '/{id}':
+    delete:
+      description: |
+        Cancels an existing Subscription.
+      displayName: cancelSubscription
+      responses:
+        '200':
+          description: Subscription was successfully canceled
+          body:
+            application/json:
+              type: Subscription
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Cancel an existing Subscription
+      (oas-tags):
+        - Subscriptions
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X DELETE
+            https://api.checkr.com/v1/subscriptions/4722c07dd9a10c3985ae432a \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    get:
+      description: |
+        Retrieves an existing Subscription.
+      displayName: getSubscription
+      responses:
+        '200':
+          description: Subscription details
+          body:
+            application/json:
+              type: Subscription
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      securedBy:
+        - OAuth2
+      (oas-summary): Retrieve an existing Subscription
+      (oas-tags):
+        - Subscriptions
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X GET
+            https://api.checkr.com/v1/subscriptions/4722c07dd9a10c3985ae432a \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+    uriParameters:
+      id:
+        description: ID of the Subscription.
+        type: string
+'/county_criminal_searches/{id}':
+  get:
+    description: |
+      Returns an existing County Criminal Search with the input ID.
+    displayName: getCountyCriminalSearch
+    responses:
+      '200':
+        description: County Criminal Search details
+        body:
+          application/json:
+            type: CountyCriminalSearch
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing County Criminal Search
+    (oas-tags):
+      - County Criminal Search
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/county_criminal_searches/539fdcf335644a0ef4000001
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the County Criminal Search to retrieve.
+      type: string
+'/documents/{id}':
+  get:
+    description: >
+      Returns an existing Document with the input ID.
+
+
+      Report Document IDs can be retrieved from the [Retrieve an existing
+      Report](#operation/getReport)
+
+      endpoint. Candidate Document IDs can be retrieved using the
+
+      [List a Candidate's Documents](#operation/getCandidateDocuments) endpoint.
+    displayName: getDocument
+    responses:
+      '200':
+        description: Document details
+        body:
+          application/json:
+            type: Document
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve a Document
+    (oas-tags):
+      - Documents
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/documents/b73f89e14b393979857806f9 \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Document to retrieve.
+      type: string
+'/education_verifications/{id}':
+  get:
+    description: |
+      Returns an existing Education Verification with the input ID.
+    displayName: getEducationVerification
+    responses:
+      '200':
+        description: Education Verification details
+        body:
+          application/json:
+            type: EducationVerification
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Education Verification
+    (oas-tags):
+      - Education Verification
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/education_verifications/59690155331711004e252cd9
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Education Verification to retrieve.
+      type: string
+'/employment_verifications/{id}':
+  get:
+    description: |
+      Returns an existing Employment Verification with the input ID.
+    displayName: getEmploymentVerification
+    responses:
+      '200':
+        description: Employment Verification details
+        body:
+          application/json:
+            type: EmploymentVerification
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Employment Verification
+    (oas-tags):
+      - Employment Verification
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/employment_verifications/59690155331711004e252cd8
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Employment Verification to retrieve.
+      type: string
+'/federal_criminal_searches/{id}':
+  get:
+    description: |
+      Returns an existing Federal Criminal Search with the input ID.
+    displayName: getFederalCriminalSearch
+    responses:
+      '200':
+        description: Federal Criminal Search details
+        body:
+          application/json:
+            type: FederalCriminalSearch
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Federal Criminal Search
+    (oas-tags):
+      - Federal Criminal Search
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/federal_criminal_searches/539fd88c101897f7cd000006
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Federal Criminal Search to retrieve.
+      type: string
+'/global_watchlist_searches/{id}':
+  get:
+    description: |
+      Returns an existing Global Watchlist Search with the input ID.
+    displayName: getGlobalWatchlistSearch
+    responses:
+      '200':
+        description: Global Watchlist Search details
+        body:
+          application/json:
+            type: GlobalWatchlistSearch
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Global Watchlist Search
+    (oas-tags):
+      - Global Watchlist Search
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/global_watchlist_searches/539fd88c101897f7cd000008
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Global Watchlist Search to retrieve.
+      type: string
+'/identity_document_verifications/{id}':
+  get:
+    description: |
+      Returns an existing Identity Document Verification with the input ID.
+    displayName: getIdentityDocumentVerification
+    responses:
+      '200':
+        description: Identity Document Verification details
+        body:
+          application/json:
+            type: IdentityDocumentVerification
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Identity Document Verification
+    (oas-tags):
+      - Identity Document Verification
+  uriParameters:
+    id:
+      description: ID of the Identity Document Verification to retrieve.
+      type: string
+'/motor_vehicle_reports/{id}':
+  get:
+    description: |
+      Returns an existing Motor Vehicle Report with the input ID.
+    displayName: getMotorVehicleReport
+    responses:
+      '200':
+        description: Motor Vehicle Report details
+        body:
+          application/json:
+            type: MotorVehicleReport
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Motor Vehicle Report
+    (oas-tags):
+      - Motor Vehicle Report
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/motor_vehicle_reports/539fd88c101897f7cd000007
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Motor Vehicle Report to retrieve.
+      type: string
+'/national_criminal_searches/{id}':
+  get:
+    description: |
+      Returns an existing National Criminal Search with the input ID.
+    displayName: getNationalCriminalSearch
+    responses:
+      '200':
+        description: National Criminal Search details
+        body:
+          application/json:
+            type: NationalCriminalSearch
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing National Criminal Search
+    (oas-tags):
+      - National Criminal Search
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/national_criminal_searches/539fd88c101897f7cd000006
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the National Criminal Search to retrieve.
+      type: string
+'/report/{report_id}':
+  /adverse_actions:
+    post:
+      description: >
+        Creates a new Adverse Action.
+
+
+        <b>Note: </b>Report must be in a `consider` status and cannot have any
+        existing Adverse Actions that have not been canceled.
+      displayName: createAdverseAction
+      responses:
+        '200':
+          description: Adverse Action was successfully created
+          body:
+            application/json:
+              type: AdverseAction
+        '400':
+          description: Bad Request
+          body:
+            application/json:
+              type: BadRequestError
+        '401':
+          description: Unauthorized
+          body:
+            application/json:
+              type: UnauthorizedError
+        '403':
+          description: Forbidden
+          body:
+            application/json:
+              type: ForbiddenError
+      body:
+        application/json:
+          type: object
+          properties:
+            adverse_item_ids:
+              description: IDs of Adverse Items selected for the Adverse Action.
+              type: array
+              items:
+                type: string
+            post_notice_scheduled_at:
+              description: >-
+                Time at which the Post-Adverse Action notification will be sent.
+                Default is 7 days after creation.
+              example: '2016-10-07T12:34:00Z'
+              type: datetime
+              required: false
+          (oas-body-name): body
+      securedBy:
+        - OAuth2
+      (oas-summary): Create a new Adverse Action
+      (oas-tags):
+        - Adverse Actions
+      (code-samples):
+        'null':
+          lang: curl
+          source: >
+            $ curl -X POST
+            https://api.checkr.com/v1/reports/b861a56db1b1b89692dd6118/adverse_actions
+            \
+                -u 83ebeabdec09f6670863766f792ead24d61fe3f9: \
+                -d post_notice_scheduled_at=2016-10-07T12:34:00Z \
+                -d 'adverse_item_ids[]=57ed4ce3057e0b002adc6d90&adverse_item_ids[]=57ed4ce3057e0b002adc6d91'
+  uriParameters:
+    report_id:
+      description: The ID of the Report for which the Adverse Action will be created.
+      type: string
+'/sex_offender_searches/{id}':
+  get:
+    description: |
+      Returns an existing Sex Offender Registry Search with the input ID.
+    displayName: getSexOffenderSearch
+    responses:
+      '200':
+        description: Sex Offender Registry Search details
+        body:
+          application/json:
+            type: SexOffenderSearch
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing Sex Offender Registry Search
+    (oas-tags):
+      - Sex Offender Registry Search
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/sex_offender_searches/539fd88c101897f7cd000008
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the Sex Offender Search to retrieve.
+      type: string
+'/ssn_traces/{id}':
+  get:
+    description: |
+      Returns an existing SSN Trace with the input ID.
+    displayName: getSsnTrace
+    responses:
+      '200':
+        description: SSN Trace details
+        body:
+          application/json:
+            type: SsnTrace
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing SSN Trace
+    (oas-tags):
+      - SSN Trace
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/ssn_traces/539fd88c101897f7cd000001 \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the SSN Trace to retrieve.
+      type: string
+'/state_criminal_searches/{id}':
+  get:
+    description: |
+      Returns an existing State Criminal Search with the input ID.
+    displayName: getStateCriminalSearch
+    responses:
+      '200':
+        description: State Criminal Search details
+        body:
+          application/json:
+            type: StateCriminalSearch
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve an existing State Criminal Search
+    (oas-tags):
+      - State Criminal Search
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/state_criminal_searches/539fdcf335644a0ef4000001
+          \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    id:
+      description: ID of the State Criminal Search to retrieve.
+      type: string
+'/verifications/{verification_id}':
+  get:
+    description: |
+      Returns an existing Verification with the input ID
+    displayName: getVerification
+    responses:
+      '200':
+        description: Verification details
+        body:
+          application/json:
+            type: Verification
+      '401':
+        description: Unauthorized
+        body:
+          application/json:
+            type: UnauthorizedError
+      '403':
+        description: Forbidden
+        body:
+          application/json:
+            type: ForbiddenError
+    securedBy:
+      - OAuth2
+    (oas-summary): Retrieve a Verification
+    (oas-tags):
+      - Verifications
+    (code-samples):
+      'null':
+        lang: curl
+        source: >
+          $ curl -X GET
+          https://api.checkr.com/v1/verifications/db313e73383710d4fa2f18fd \
+              -u 83ebeabdec09f6670863766f792ead24d61fe3f9:
+  uriParameters:
+    verification_id:
+      type: string
