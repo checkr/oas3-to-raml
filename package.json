@@ -1,6 +1,6 @@
 {
   "name": "oas3-to-raml",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "OpenAPI 3.0 to RAML converter",
   "bin": {
     "oas3-to-raml": "./bin/oas3-to-raml.js"
