@@ -6,7 +6,7 @@ const version = require('../package.json').version;
 
 // Import converters
 const { convertFromOas3ToOas2, convertFromOas2ToRaml } = require('../lib/converters');
-const { fixNullables, fixExtendedTypes, fixExamples } = require('../lib/raml-fixers');
+const { fixNullables, fixExtendedTypes, fixExamples, fixFormatType} = require('../lib/raml-fixers');
 
 // Conversion steps, each step contains:
 // * desc: Descriptive summary of step (e.g. 'converting from X to Y')
@@ -16,7 +16,8 @@ const steps = [
   { desc: 'Convert from OpenAPI 2.0 to RAML', action: convertFromOas2ToRaml },
   { desc: 'Fix \'nullable\' types', action: fixNullables },
   { desc: 'Fix extended types', action: fixExtendedTypes },
-  { desc: 'Fix numeric examples', action: fixExamples }
+  { desc: 'Fix numeric examples', action: fixExamples },
+  { desc: 'Fix format type', action: fixFormatType }
 ];
 
 /**
